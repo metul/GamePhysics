@@ -8,6 +8,24 @@
 #define MIDPOINT 2
 // Do Not Change
 
+#include <vector>
+
+struct Point {
+	Vec3 position;
+	Vec3 velocity;
+	Vec3 force;
+	float mass;
+	float damping;
+	bool isFixed;
+};
+
+struct Spring {
+	int point1;
+	int point2;
+	float stiffness;
+	float initialLength;
+	float currentLength;
+};
 
 class MassSpringSystemSimulator:public Simulator{
 public:
@@ -54,5 +72,9 @@ private:
 	Point2D m_mouse;
 	Point2D m_trackmouse;
 	Point2D m_oldtrackmouse;
+
+	// Storage
+	vector<Point> points;
+	vector<Spring> springs;
 };
 #endif

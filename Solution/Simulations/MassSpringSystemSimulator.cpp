@@ -47,23 +47,37 @@ void MassSpringSystemSimulator::onMouse(int x, int y)
 
 void MassSpringSystemSimulator::setMass(float mass)
 {
+	m_fMass = mass;
 }
 
 void MassSpringSystemSimulator::setStiffness(float stiffness)
 {
+	m_fStiffness = stiffness;
 }
 
 void MassSpringSystemSimulator::setDampingFactor(float damping)
 {
+	m_fDamping = damping;
 }
 
 int MassSpringSystemSimulator::addMassPoint(Vec3 position, Vec3 Velocity, bool isFixed)
 {
+	Point tmp;
+	tmp.position = position;
+	tmp.velocity = Velocity;
+	tmp.isFixed = isFixed;
+	tmp.mass = m_fMass;
+	tmp.damping = m_fDamping;
 	return 0;
 }
 
 void MassSpringSystemSimulator::addSpring(int masspoint1, int masspoint2, float initialLength)
 {
+	Spring tmp;
+	tmp.point1 = masspoint1;
+	tmp.point2 = masspoint2;
+	tmp.initialLength = initialLength;
+	tmp.stiffness = m_fStiffness;
 }
 
 int MassSpringSystemSimulator::getNumberOfMassPoints()
