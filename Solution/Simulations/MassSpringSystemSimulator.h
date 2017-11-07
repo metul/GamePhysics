@@ -14,15 +14,12 @@ struct Point {
 	Vec3 position;
 	Vec3 velocity;
 	Vec3 force;
-	float mass;
-	float damping;
 	bool isFixed;
 };
 
 struct Spring {
 	int point1;
 	int point2;
-	float stiffness;
 	float initialLength;
 	float currentLength;
 };
