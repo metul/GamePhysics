@@ -48,31 +48,27 @@ void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateCon
 void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 {
 	m_iTestCase = testCase;
+	springs.clear();
+	points.clear();
 	// TODO: Initialize different values for demo scenes?
-	//switch (m_iTestCase)
-	//{
-	//case 0:
+	switch (m_iTestCase)
+	{
+	case 0:
+	{
 		cout << "Demo1 !\n";
-		springs.clear();
-		points.clear();
 		setMass(10);
 		setStiffness(40);
-		Point p1, p2;
-		p1.position = Vec3(0, 0, 0);
-		p1.velocity = Vec3(-1, 0, 0);
-		p2.position = Vec3(0, 2, 0);
-		p2.velocity = Vec3(1, 0, 0);
-		points.push_back(p1);
-		points.push_back(p2);
-		Spring spring;
-		spring.initialLength = 1;
-		spring.currentLength = 1;
-		spring.point1 = 0;
-		spring.point2 = 1;
-		springs.push_back(spring);
-		Euler(0.1f);
-		//break;
-		/*
+		int massPoint1 = addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
+		int massPoint2 = addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
+		addSpring(massPoint1, massPoint2, 1);
+		// Calculate one euler step
+		EulerStep(0.1f);
+		// Print results
+		for (std::vector<Point>::iterator it = points.begin(); it != points.end(); ++it) {
+			std::cout << "Position: " << it->position << " Velocity: " << it->velocity << std::endl;
+		}
+	}
+	break;
 	case 1:
 		cout << "Demo2 !\n";
 		break;
@@ -82,12 +78,10 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 	case 3:
 		cout << "Demo4 !\n";
 		break;
-		
 	default:
 		cout << "Empty Test!\n";
 		break;
 	}
-	*/
 }
 
 void MassSpringSystemSimulator::externalForcesCalculations(float timeElapsed)
@@ -96,7 +90,7 @@ void MassSpringSystemSimulator::externalForcesCalculations(float timeElapsed)
 
 void MassSpringSystemSimulator::simulateTimestep(float timeStep)
 {
-	
+
 }
 
 void MassSpringSystemSimulator::onClick(int x, int y)
@@ -174,7 +168,7 @@ void MassSpringSystemSimulator::applyExternalForce(Vec3 force)
 {
 }
 
-void MassSpringSystemSimulator::Euler(float timestep)
+void MassSpringSystemSimulator::EulerStep(float timestep)
 {
 	for (int i = 0; i < springs.size(); i++) {
 		Spring currentSpring = springs[i];
@@ -202,13 +196,11 @@ void MassSpringSystemSimulator::Euler(float timestep)
 		points[currentSpring.point2] = p2;
 		currentSpring.currentLength = newLength;
 		springs[i] = currentSpring;
-		//tmp
-		std::cout << p1.position << p2.position << std::endl;
 	}
 
 }
 
-void MassSpringSystemSimulator::Midpoint(float timestep)
+void MassSpringSystemSimulator::MidpointStep(float timestep)
 {
 }
 
