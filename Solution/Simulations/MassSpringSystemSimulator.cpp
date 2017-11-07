@@ -49,11 +49,30 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 {
 	m_iTestCase = testCase;
 	// TODO: Initialize different values for demo scenes?
-	switch (m_iTestCase)
-	{
-	case 0:
+	//switch (m_iTestCase)
+	//{
+	//case 0:
 		cout << "Demo1 !\n";
-		break;
+		springs.clear();
+		points.clear();
+		setMass(10);
+		setStiffness(40);
+		Point p1, p2;
+		p1.position = Vec3(0, 0, 0);
+		p1.velocity = Vec3(-1, 0, 0);
+		p2.position = Vec3(0, 2, 0);
+		p2.velocity = Vec3(1, 0, 0);
+		points.push_back(p1);
+		points.push_back(p2);
+		Spring spring;
+		spring.initialLength = 1;
+		spring.currentLength = 1;
+		spring.point1 = 0;
+		spring.point2 = 1;
+		springs.push_back(spring);
+		Euler(0.1f);
+		//break;
+		/*
 	case 1:
 		cout << "Demo2 !\n";
 		break;
@@ -63,10 +82,12 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 	case 3:
 		cout << "Demo4 !\n";
 		break;
+		
 	default:
 		cout << "Empty Test!\n";
 		break;
 	}
+	*/
 }
 
 void MassSpringSystemSimulator::externalForcesCalculations(float timeElapsed)
@@ -125,6 +146,7 @@ void MassSpringSystemSimulator::addSpring(int masspoint1, int masspoint2, float 
 	tmp.point1 = masspoint1;
 	tmp.point2 = masspoint2;
 	tmp.initialLength = initialLength;
+	tmp.currentLength = initialLength;
 	springs.push_back(tmp);
 }
 
@@ -151,3 +173,60 @@ Vec3 MassSpringSystemSimulator::getVelocityOfMassPoint(int index)
 void MassSpringSystemSimulator::applyExternalForce(Vec3 force)
 {
 }
+
+void MassSpringSystemSimulator::Euler(float timestep)
+{
+	for (int i = 0; i < springs.size(); i++) {
+		Spring currentSpring = springs[i];
+		Vec3 currentForce = calculateInternalForce(currentSpring);
+		Vec3 currentAcceleration = calculateAcceleration(currentForce);
+		// Calculate new positions
+		Point p1 = points[currentSpring.point1];
+		Point p2 = points[currentSpring.point2];
+		Vec3 newPos1, newPos2;
+		newPos1 = p1.position + timestep * p1.velocity;
+		newPos2 = p2.position + timestep * p2.velocity;
+		// Calculate new velocities
+		Vec3 newVel1, newVel2;
+		newVel1 = calculateNewVelocity(p1, currentAcceleration, timestep);
+		newVel2 = calculateNewVelocity(p2, -currentAcceleration, timestep);
+		// Calculate current length
+		Vec3 diff = p1.position - p2.position;
+		float newLength = sqrtf(pow(diff.x, 2) + pow(diff.y, 2) + pow(diff.z, 2));
+		// Save new values
+		p1.position = newPos1;
+		p2.position = newPos2;
+		p1.velocity = newVel1;
+		p2.velocity = newVel2;
+		points[currentSpring.point1] = p1;
+		points[currentSpring.point2] = p2;
+		currentSpring.currentLength = newLength;
+		springs[i] = currentSpring;
+		//tmp
+		std::cout << p1.position << p2.position << std::endl;
+	}
+
+}
+
+void MassSpringSystemSimulator::Midpoint(float timestep)
+{
+}
+
+Vec3 MassSpringSystemSimulator::calculateInternalForce(Spring spring)
+{
+	Point p1 = points[spring.point1];
+	Point p2 = points[spring.point2];
+	Vec3 result = -m_fStiffness * (spring.currentLength - spring.initialLength) * ((p1.position - p2.position) / spring.currentLength);
+	return result;
+}
+
+Vec3 MassSpringSystemSimulator::calculateAcceleration(Vec3 force)
+{
+	return force / m_fMass;
+}
+
+Vec3 MassSpringSystemSimulator::calculateNewVelocity(Point point, Vec3 acceleration, float timestep)
+{
+	return point.velocity + acceleration * timestep;
+}
+

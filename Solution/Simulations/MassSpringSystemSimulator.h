@@ -51,6 +51,11 @@ public:
 	Vec3 getPositionOfMassPoint(int index);
 	Vec3 getVelocityOfMassPoint(int index);
 	void applyExternalForce(Vec3 force);
+	void Euler(float timestep);
+	void Midpoint(float timestep);
+	Vec3 calculateInternalForce(Spring spring);
+	Vec3 calculateAcceleration(Vec3 force);
+	Vec3 calculateNewVelocity(Point point, Vec3 acceleration, float timestep);
 	
 	// Do Not Change
 	void setIntegrator(int integrator) {
