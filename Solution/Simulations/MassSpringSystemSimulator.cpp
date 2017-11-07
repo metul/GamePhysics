@@ -68,7 +68,7 @@ int MassSpringSystemSimulator::addMassPoint(Vec3 position, Vec3 Velocity, bool i
 	tmp.velocity = Velocity;
 	tmp.isFixed = isFixed;
 	points.push_back(tmp);
-	return points.size - 1; //Position of inserted Point 
+	return points.size() - 1; //Position of inserted Point 
 }
 
 void MassSpringSystemSimulator::addSpring(int masspoint1, int masspoint2, float initialLength)
@@ -82,12 +82,12 @@ void MassSpringSystemSimulator::addSpring(int masspoint1, int masspoint2, float 
 
 int MassSpringSystemSimulator::getNumberOfMassPoints()
 {
-	return points.size;
+	return points.size();
 }
 
 int MassSpringSystemSimulator::getNumberOfSprings()
 {
-	return springs.size;
+	return springs.size();
 }
 
 Vec3 MassSpringSystemSimulator::getPositionOfMassPoint(int index)
