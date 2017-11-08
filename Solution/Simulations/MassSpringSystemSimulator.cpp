@@ -39,7 +39,7 @@ void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateCon
 	switch (m_iTestCase)
 	{
 	case 0: break;
-	case 1: break;
+	case 1: drawSphere(); break;
 	case 2: break;
 	case 3: break;
 	}
@@ -111,7 +111,20 @@ void MassSpringSystemSimulator::externalForcesCalculations(float timeElapsed)
 
 void MassSpringSystemSimulator::simulateTimestep(float timeStep)
 {
-
+	// TODO: Update current setup for each frame
+	switch (m_iTestCase)
+	{
+	case 0:
+		break;
+	case 1:
+		break;
+	case 2:
+		break;
+	case 3:
+		break;
+	default:
+		break;
+	}
 }
 
 void MassSpringSystemSimulator::onClick(int x, int y)
@@ -187,6 +200,7 @@ Vec3 MassSpringSystemSimulator::getVelocityOfMassPoint(int index)
 
 void MassSpringSystemSimulator::applyExternalForce(Vec3 force)
 {
+	// TODO
 }
 
 void MassSpringSystemSimulator::EulerStep(float timestep)
@@ -294,5 +308,20 @@ Vec3 MassSpringSystemSimulator::calculateAcceleration(Vec3 force)
 Vec3 MassSpringSystemSimulator::calculateNewVelocity(Point point, Vec3 acceleration, float timestep)
 {
 	return point.velocity + acceleration * timestep;
+}
+
+void MassSpringSystemSimulator::drawSphere()
+{
+	Vec3 emissiveColor, specularColor, diffuseColor;
+	float specularPower;
+	emissiveColor = Vec3();
+	specularColor = 0.4 * Vec3(1, 1, 1);
+	specularPower = 100;
+	diffuseColor = 0.6 * Vec3(1, 1, 1);
+	DUC->setUpLighting(emissiveColor, specularColor, specularPower, diffuseColor);
+	Vec3 pos, scale;
+	pos = Vec3();
+	scale = 0.1 * Vec3(1, 1, 1);
+	DUC->drawSphere(pos, scale);
 }
 
