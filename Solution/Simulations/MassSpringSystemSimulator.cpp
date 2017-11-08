@@ -62,10 +62,8 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 		massPoint1 = addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
 		massPoint2 = addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
 		addSpring(massPoint1, massPoint2, 1);
-
 		// Determines how many steps to calculate
 		int numSteps = 3;
-
 		for (int i = 0; i < numSteps; i++) {
 			// Calculate one euler step
 			EulerStep(0.1f);
@@ -75,14 +73,12 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 				std::cout << "Position: " << it->position << " Velocity: " << it->velocity << std::endl;
 			}
 		}
-
 		// Reset
 		springs.clear();
 		points.clear();
 		massPoint1 = addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
 		massPoint2 = addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
 		addSpring(massPoint1, massPoint2, 1);
-
 		for (int i = 0; i < numSteps; i++) {
 			// Calculate one midpoint step
 			MidpointStep(0.1f);
@@ -240,18 +236,9 @@ void MassSpringSystemSimulator::MidpointStep(float timestep)
 		tmpPos2 = p2.position + (timestep / 2) * p2.velocity;
 		p1temp.position = tmpPos1;
 		p2temp.position = tmpPos2;
-		
-		/* MARK
-		points[currentSpring.point1] = p1temp;
-		points[currentSpring.point2] = p2temp;
-		MARK */ 
-
-		//std::cout << "p1temp: " << p1temp.position << " p2temp: " << p2temp.position << std::endl;
-		//std::cout << "currentLength: " << currentSpring.currentLength << " newLength: " << newLengthTemp << std::endl;
 		// Calculate force and acceleration at t
 		Vec3 currentForce = calculateInternalForce(currentSpring);
 		Vec3 currentAcceleration = calculateAcceleration(currentForce);
-		//std::cout << "currentForce: " << currentForce << " currentAcceleration: " << currentAcceleration << std::endl;
 		// Calculate velocity at t + h / 2
 		Vec3 tmpVel1, tmpVel2;
 		tmpVel1 = calculateNewVelocity(p1, currentAcceleration, timestep / 2);
@@ -262,6 +249,9 @@ void MassSpringSystemSimulator::MidpointStep(float timestep)
 		Vec3 newPos1, newPos2;
 		newPos1 = p1.position + timestep * p1temp.velocity;
 		newPos2 = p2.position + timestep * p2temp.velocity;
+		// Feed temporary values to spring
+		points[currentSpring.point1] = p1temp;
+		points[currentSpring.point2] = p2temp;
 		// Calculate current spring length at t + h / 2
 		Vec3 diff = p1temp.position - p2temp.position;
 		float newLength = sqrtf(pow(diff.x, 2) + pow(diff.y, 2) + pow(diff.z, 2));
@@ -269,7 +259,6 @@ void MassSpringSystemSimulator::MidpointStep(float timestep)
 		// Calculate midpoint force and acceleration for the velocity at t + h
 		currentForce = calculateInternalForce(currentSpring);
 		currentAcceleration = calculateAcceleration(currentForce);
-		//std::cout << "currentForce: " << currentForce << " currentAcceleration: " << currentAcceleration << std::endl;
 		// Calculate velocity at t + h
 		Vec3 newVel1, newVel2;
 		newVel1 = calculateNewVelocity(p1, currentAcceleration, timestep);
