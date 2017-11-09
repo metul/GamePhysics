@@ -45,6 +45,7 @@ void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateCon
 			Vec3 position = getPositionOfMassPoint(i);
 			drawSphere(position);
 		}
+		drawLine(getPositionOfMassPoint(0), getPositionOfMassPoint(1));
 	} break;
 	case 2: {
 		int numMassPoints = getNumberOfMassPoints();
@@ -52,6 +53,7 @@ void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateCon
 			Vec3 position = getPositionOfMassPoint(i);
 			drawSphere(position);
 		}
+		drawLine(getPositionOfMassPoint(0), getPositionOfMassPoint(1));
 	} break;
 	case 3: break;
 	}
@@ -346,5 +348,15 @@ void MassSpringSystemSimulator::drawSphere(Vec3 position)
 	DUC->setUpLighting(emissiveColor, specularColor, specularPower, diffuseColor);
 	Vec3 scale = 0.1 * Vec3(1, 1, 1);
 	DUC->drawSphere(position, scale);
+}
+
+void MassSpringSystemSimulator::drawLine(Vec3 position1, Vec3 position2)
+{
+	DUC->beginLine();
+	Vec3 color1, color2;
+	color1 = Vec3(1, 0, 0);
+	color2 = Vec3(0, 1, 0);
+	DUC->drawLine(position1, color1, position2, color2);
+	DUC->endLine();
 }
 

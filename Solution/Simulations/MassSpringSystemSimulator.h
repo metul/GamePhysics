@@ -57,6 +57,7 @@ public:
 	Vec3 calculateAcceleration(Vec3 force);
 	Vec3 calculateNewVelocity(Point point, Vec3 acceleration, float timestep);
 	void drawSphere(Vec3 position);
+	void drawLine(Vec3 position1, Vec3 position2);
 	
 	// Do Not Change
 	void setIntegrator(int integrator) {
