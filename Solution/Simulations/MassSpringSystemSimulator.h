@@ -56,7 +56,7 @@ public:
 	Vec3 calculateInternalForce(Spring spring);
 	Vec3 calculateAcceleration(Vec3 force);
 	Vec3 calculateNewVelocity(Point point, Vec3 acceleration, float timestep);
-	void drawSphere();
+	void drawSphere(Vec3 position);
 	
 	// Do Not Change
 	void setIntegrator(int integrator) {

@@ -39,8 +39,20 @@ void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateCon
 	switch (m_iTestCase)
 	{
 	case 0: break;
-	case 1: drawSphere(); break;
-	case 2: break;
+	case 1: {
+		int numMassPoints = getNumberOfMassPoints();
+		for (int i = 0; i < numMassPoints; i++) {
+			Vec3 position = getPositionOfMassPoint(i);
+			drawSphere(position);
+		}
+	} break;
+	case 2: {
+		int numMassPoints = getNumberOfMassPoints();
+		for (int i = 0; i < numMassPoints; i++) {
+			Vec3 position = getPositionOfMassPoint(i);
+			drawSphere(position);
+		}
+	} break;
 	case 3: break;
 	}
 }
@@ -88,14 +100,25 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 				std::cout << "Position: " << it->position << " Velocity: " << it->velocity << std::endl;
 			}
 		}
-	}
-	break;
-	case 1:
+	} break;
+	case 1: {
 		cout << "Demo2 !\n";
-		break;
-	case 2:
+		setMass(10);
+		setStiffness(40);
+		int massPoint1, massPoint2;
+		massPoint1 = addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
+		massPoint2 = addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
+		addSpring(massPoint1, massPoint2, 1);
+	} break;
+	case 2: {
 		cout << "Demo3 !\n";
-		break;
+		setMass(10);
+		setStiffness(40);
+		int massPoint1, massPoint2;
+		massPoint1 = addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
+		massPoint2 = addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
+		addSpring(massPoint1, massPoint2, 1);
+	} break;
 	case 3:
 		cout << "Demo4 !\n";
 		break;
@@ -117,8 +140,10 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep)
 	case 0:
 		break;
 	case 1:
+		EulerStep(0.005f);
 		break;
 	case 2:
+		MidpointStep(0.005f);
 		break;
 	case 3:
 		break;
@@ -310,7 +335,7 @@ Vec3 MassSpringSystemSimulator::calculateNewVelocity(Point point, Vec3 accelerat
 	return point.velocity + acceleration * timestep;
 }
 
-void MassSpringSystemSimulator::drawSphere()
+void MassSpringSystemSimulator::drawSphere(Vec3 position)
 {
 	Vec3 emissiveColor, specularColor, diffuseColor;
 	float specularPower;
@@ -319,9 +344,7 @@ void MassSpringSystemSimulator::drawSphere()
 	specularPower = 100;
 	diffuseColor = 0.6 * Vec3(1, 1, 1);
 	DUC->setUpLighting(emissiveColor, specularColor, specularPower, diffuseColor);
-	Vec3 pos, scale;
-	pos = Vec3();
-	scale = 0.1 * Vec3(1, 1, 1);
-	DUC->drawSphere(pos, scale);
+	Vec3 scale = 0.1 * Vec3(1, 1, 1);
+	DUC->drawSphere(position, scale);
 }
 
