@@ -72,6 +72,7 @@ private:
 	float m_fDamping;
 	int m_iIntegrator;
 	Vec3 m_fGravity;
+	float sphereSize;
 
 	// UI Attributes
 	Vec3 m_externalForce;
@@ -79,6 +80,7 @@ private:
 	Point2D m_trackmouse;
 	Point2D m_oldtrackmouse;
 	bool useEuler;
+	bool useGravity;
 
 	// Storage
 	vector<Point> points;

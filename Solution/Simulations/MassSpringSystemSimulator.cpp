@@ -3,6 +3,7 @@
 MassSpringSystemSimulator::MassSpringSystemSimulator()
 {
 	m_iTestCase = 0;
+	sphereSize = 0.1f;
 }
 
 // UI Functions
@@ -22,7 +23,8 @@ void MassSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 	case 1:break;
 	case 2:break;
 	case 3:
-		TwAddVarRW(DUC->g_pTweakBar, "Use Euler", TW_TYPE_BOOL16, &useEuler, "");
+		TwAddVarRW(DUC->g_pTweakBar, "Use Euler(else Midpoint)", TW_TYPE_BOOL16, &useEuler, "");
+		TwAddVarRW(DUC->g_pTweakBar, "Use Gravity", TW_TYPE_BOOL16, &useGravity, "");
 		break;
 	default:break;
 	}
@@ -144,12 +146,27 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 		setMass(10);
 		setStiffness(40);
 		setGravity(9.81f);
-		int massPoint1, massPoint2, massPoint3;
-		massPoint1 = addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
-		massPoint2 = addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
-		massPoint3 = addMassPoint(Vec3(1, 0, 0), Vec3(0, 0, 0), true);
+		int massPoint1, massPoint2, massPoint3, massPoint4, massPoint5, massPoint6, massPoint7, massPoint8, massPoint9, massPoint10;
+		massPoint1 = addMassPoint(Vec3(0, 1, 3), Vec3(-1, 0, 0), false);
+		massPoint2 = addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), true);
+		massPoint3 = addMassPoint(Vec3(1, 4, 0), Vec3(0, 1, 0), true);
+		massPoint4 = addMassPoint(Vec3(1, 5, 0), Vec3(0, 0, 0), false);
+		massPoint5 = addMassPoint(Vec3(1, 1, 3), Vec3(0, 0, 0), false);
+		massPoint6 = addMassPoint(Vec3(1, 2, 0), Vec3(0, 0, 0), false);
+		massPoint7 = addMassPoint(Vec3(0, 3, 0), Vec3(0, 0, 0), false);
+		massPoint8 = addMassPoint(Vec3(0, 6, 5), Vec3(0, 0, 0), false);
+		massPoint9 = addMassPoint(Vec3(0, 2, 0), Vec3(0, 0, 1), false);
+		massPoint10 = addMassPoint(Vec3(3, 3, 3), Vec3(0, 0, 0), false);
 		addSpring(massPoint1, massPoint2, 1);
 		addSpring(massPoint2, massPoint3, 1);
+		addSpring(massPoint2, massPoint4, 1);
+		addSpring(massPoint2, massPoint5, 1);
+		addSpring(massPoint9, massPoint3, 1);
+		addSpring(massPoint10, massPoint3, 1);
+		addSpring(massPoint8, massPoint3, 1);
+		addSpring(massPoint3, massPoint7, 1);
+		addSpring(massPoint6, massPoint3, 1);
+		addSpring(massPoint3, massPoint5, 1);
 		break;
 	default:
 		cout << "Empty Test!\n";
@@ -286,12 +303,20 @@ void MassSpringSystemSimulator::EulerStep(float timestep)
 		newVel1 = calculateNewVelocity(p1, currentAcceleration, timestep);
 		newVel2 = calculateNewVelocity(p2, -currentAcceleration, timestep);
 		// Apply gravity
-		newVel1 += m_fGravity * timestep;
-		newVel2 += m_fGravity * timestep;
+		if (useGravity) {
+			newVel1 += m_fGravity * timestep;
+			newVel2 += m_fGravity * timestep;
+		}
 		// Calculate current length
 		Vec3 diff = newPos1 - newPos2;
 		float newLength = sqrtf(pow(diff.x, 2) + pow(diff.y, 2) + pow(diff.z, 2));
 		// Save new values
+		if (newPos1.y < -1 + sphereSize) {
+			newPos1.y = -1 + sphereSize;
+		}
+		if (newPos2.y < -1 + sphereSize) {
+			newPos2.y = -1 + sphereSize;
+		}
 		p1.position = newPos1;
 		p2.position = newPos2;
 		p1.velocity = newVel1;
@@ -362,6 +387,12 @@ void MassSpringSystemSimulator::MidpointStep(float timestep)
 		diff = newPos1 - newPos2;
 		newLength = sqrtf(pow(diff.x, 2) + pow(diff.y, 2) + pow(diff.z, 2));
 		// Save new values
+		if (newPos1.y < -1 + sphereSize) {
+			newPos1.y = -1 + sphereSize;
+		}
+		if (newPos2.y < -1 + sphereSize) {
+			newPos2.y = -1 + sphereSize;
+		}
 		p1.position = newPos1;
 		p2.position = newPos2;
 		p1.velocity = newVel1;
@@ -404,7 +435,7 @@ void MassSpringSystemSimulator::drawSphere(Vec3 position)
 	specularPower = 100;
 	diffuseColor = 0.6 * Vec3(1, 1, 1);
 	DUC->setUpLighting(emissiveColor, specularColor, specularPower, diffuseColor);
-	Vec3 scale = 0.1 * Vec3(1, 1, 1);
+	Vec3 scale = sphereSize * Vec3(1, 1, 1);
 	DUC->drawSphere(position, scale);
 }
 
