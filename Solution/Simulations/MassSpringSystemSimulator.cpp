@@ -87,6 +87,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 		cout << "Demo1 !\n";
 		setMass(10);
 		setStiffness(40);
+		setGravity(0);
 		int massPoint1, massPoint2;
 		massPoint1 = addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
 		massPoint2 = addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
@@ -122,6 +123,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 		cout << "Demo2 !\n";
 		setMass(10);
 		setStiffness(40);
+		setGravity(0);
 		int massPoint1, massPoint2;
 		massPoint1 = addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
 		massPoint2 = addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
@@ -131,6 +133,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 		cout << "Demo3 !\n";
 		setMass(10);
 		setStiffness(40);
+		setGravity(0);
 		int massPoint1, massPoint2;
 		massPoint1 = addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
 		massPoint2 = addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
@@ -140,6 +143,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 		cout << "Demo4 !\n";
 		setMass(10);
 		setStiffness(40);
+		setGravity(9.81f);
 		int massPoint1, massPoint2, massPoint3;
 		massPoint1 = addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
 		massPoint2 = addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
@@ -155,7 +159,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 
 void MassSpringSystemSimulator::externalForcesCalculations(float timeElapsed)
 {
-	// TODO
+	// TODO: Apply the mouse deltas
 }
 
 void MassSpringSystemSimulator::simulateTimestep(float timeStep)
@@ -173,10 +177,10 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep)
 		break;
 	case 3:
 		if (useEuler) {
-			EulerStep(0.005f);
+			EulerStep(timeStep);
 		}
 		else {
-			MidpointStep(0.005f);
+			MidpointStep(timeStep);
 		}
 		break;
 	default:
@@ -215,6 +219,11 @@ void MassSpringSystemSimulator::setDampingFactor(float damping)
 	m_fDamping = damping;
 }
 
+void MassSpringSystemSimulator::setGravity(float gravity)
+{
+	m_fGravity = gravity * Vec3(0, -1, 0);
+}
+
 int MassSpringSystemSimulator::addMassPoint(Vec3 position, Vec3 Velocity, bool isFixed)
 {
 	Point tmp;
@@ -222,7 +231,7 @@ int MassSpringSystemSimulator::addMassPoint(Vec3 position, Vec3 Velocity, bool i
 	tmp.velocity = Velocity;
 	tmp.isFixed = isFixed;
 	points.push_back(tmp);
-	return points.size() - 1; //Position of inserted Point 
+	return points.size() - 1; // Position of inserted Point 
 }
 
 void MassSpringSystemSimulator::addSpring(int masspoint1, int masspoint2, float initialLength)
@@ -276,6 +285,9 @@ void MassSpringSystemSimulator::EulerStep(float timestep)
 		Vec3 newVel1, newVel2;
 		newVel1 = calculateNewVelocity(p1, currentAcceleration, timestep);
 		newVel2 = calculateNewVelocity(p2, -currentAcceleration, timestep);
+		// Apply gravity
+		newVel1 += m_fGravity * timestep;
+		newVel2 += m_fGravity * timestep;
 		// Calculate current length
 		Vec3 diff = newPos1 - newPos2;
 		float newLength = sqrtf(pow(diff.x, 2) + pow(diff.y, 2) + pow(diff.z, 2));
@@ -318,6 +330,9 @@ void MassSpringSystemSimulator::MidpointStep(float timestep)
 		Vec3 tmpVel1, tmpVel2;
 		tmpVel1 = calculateNewVelocity(p1, currentAcceleration, timestep / 2);
 		tmpVel2 = calculateNewVelocity(p2, -currentAcceleration, timestep / 2);
+		// Apply gravity
+		tmpVel1 += m_fGravity * timestep / 2;
+		tmpVel2 += m_fGravity * timestep / 2;
 		p1temp.velocity = tmpVel1;
 		p2temp.velocity = tmpVel2;
 		// Calculate new positions at t + h
@@ -340,6 +355,9 @@ void MassSpringSystemSimulator::MidpointStep(float timestep)
 		Vec3 newVel1, newVel2;
 		newVel1 = calculateNewVelocity(p1, currentAcceleration, timestep);
 		newVel2 = calculateNewVelocity(p2, -currentAcceleration, timestep);
+		// Apply gravity
+		newVel1 += m_fGravity * timestep;
+		newVel2 += m_fGravity * timestep;
 		// Calculate current length
 		diff = newPos1 - newPos2;
 		newLength = sqrtf(pow(diff.x, 2) + pow(diff.y, 2) + pow(diff.z, 2));
