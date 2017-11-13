@@ -326,8 +326,8 @@ void MassSpringSystemSimulator::EulerStep(float timestep)
 			newVel1 += m_fGravity * timestep;
 			newVel2 += m_fGravity * timestep;
 		}
-		newVel1 += m_externalForce * timestep;
-		newVel2 += m_externalForce * timestep;
+		newVel1 += m_externalForce;
+		newVel2 += m_externalForce;
 		// Calculate current length
 		Vec3 diff = newPos1 - newPos2;
 		float newLength = sqrtf(pow(diff.x, 2) + pow(diff.y, 2) + pow(diff.z, 2));
@@ -381,8 +381,8 @@ void MassSpringSystemSimulator::MidpointStep(float timestep)
 			tmpVel1 += m_fGravity * timestep / 2;
 			tmpVel2 += m_fGravity * timestep / 2;
 		}
-		tmpVel1 += m_externalForce * timestep;
-		tmpVel2 += m_externalForce * timestep;
+		tmpVel1 += m_externalForce;
+		tmpVel2 += m_externalForce;
 		p1temp.velocity = tmpVel1;
 		p2temp.velocity = tmpVel2;
 		// Calculate new positions at t + h
@@ -410,6 +410,8 @@ void MassSpringSystemSimulator::MidpointStep(float timestep)
 			newVel1 += m_fGravity * timestep;
 			newVel2 += m_fGravity * timestep;
 		}
+		newVel1 += m_externalForce;
+		newVel2 += m_externalForce;
 		// Calculate current length
 		diff = newPos1 - newPos2;
 		newLength = sqrtf(pow(diff.x, 2) + pow(diff.y, 2) + pow(diff.z, 2));
