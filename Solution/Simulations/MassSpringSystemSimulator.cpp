@@ -176,7 +176,24 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 
 void MassSpringSystemSimulator::externalForcesCalculations(float timeElapsed)
 {
-	// TODO: Apply the mouse deltas
+	// Apply the mouse deltas to g_vfMovableObjectPos (move along cameras view plane)
+	Point2D mouseDiff;
+	mouseDiff.x = m_trackmouse.x - m_oldtrackmouse.x;
+	mouseDiff.y = m_trackmouse.y - m_oldtrackmouse.y;
+	if (mouseDiff.x != 0 || mouseDiff.y != 0)
+	{
+		Mat4 worldViewInv = Mat4(DUC->g_camera.GetWorldMatrix() * DUC->g_camera.GetViewMatrix());
+		worldViewInv = worldViewInv.inverse();
+		Vec3 inputView = Vec3((float)mouseDiff.x, (float)-mouseDiff.y, 0);
+		Vec3 inputWorld = worldViewInv.transformVectorNormal(inputView);
+		// find a proper scale!
+		float inputScale = 0.001f;
+		inputWorld = inputWorld * inputScale;
+		m_externalForce = inputWorld;
+	}
+	else {
+		m_externalForce = Vec3(0, 0, 0);
+	}
 }
 
 void MassSpringSystemSimulator::simulateTimestep(float timeStep)
@@ -286,6 +303,8 @@ void MassSpringSystemSimulator::applyExternalForce(Vec3 force)
 	// TODO
 }
 
+
+
 void MassSpringSystemSimulator::EulerStep(float timestep)
 {
 	for (int i = 0; i < springs.size(); i++) {
@@ -307,6 +326,8 @@ void MassSpringSystemSimulator::EulerStep(float timestep)
 			newVel1 += m_fGravity * timestep;
 			newVel2 += m_fGravity * timestep;
 		}
+		newVel1 += m_externalForce * timestep;
+		newVel2 += m_externalForce * timestep;
 		// Calculate current length
 		Vec3 diff = newPos1 - newPos2;
 		float newLength = sqrtf(pow(diff.x, 2) + pow(diff.y, 2) + pow(diff.z, 2));
@@ -356,8 +377,12 @@ void MassSpringSystemSimulator::MidpointStep(float timestep)
 		tmpVel1 = calculateNewVelocity(p1, currentAcceleration, timestep / 2);
 		tmpVel2 = calculateNewVelocity(p2, -currentAcceleration, timestep / 2);
 		// Apply gravity
-		tmpVel1 += m_fGravity * timestep / 2;
-		tmpVel2 += m_fGravity * timestep / 2;
+		if (useGravity) {
+			tmpVel1 += m_fGravity * timestep / 2;
+			tmpVel2 += m_fGravity * timestep / 2;
+		}
+		tmpVel1 += m_externalForce * timestep;
+		tmpVel2 += m_externalForce * timestep;
 		p1temp.velocity = tmpVel1;
 		p2temp.velocity = tmpVel2;
 		// Calculate new positions at t + h
@@ -381,8 +406,10 @@ void MassSpringSystemSimulator::MidpointStep(float timestep)
 		newVel1 = calculateNewVelocity(p1, currentAcceleration, timestep);
 		newVel2 = calculateNewVelocity(p2, -currentAcceleration, timestep);
 		// Apply gravity
-		newVel1 += m_fGravity * timestep;
-		newVel2 += m_fGravity * timestep;
+		if (useGravity) {
+			newVel1 += m_fGravity * timestep;
+			newVel2 += m_fGravity * timestep;
+		}
 		// Calculate current length
 		diff = newPos1 - newPos2;
 		newLength = sqrtf(pow(diff.x, 2) + pow(diff.y, 2) + pow(diff.z, 2));
