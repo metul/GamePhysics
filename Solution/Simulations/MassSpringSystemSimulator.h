@@ -81,6 +81,7 @@ private:
 	Point2D m_oldtrackmouse;
 	bool useEuler;
 	bool useGravity;
+	bool mouseInput;
 
 	// Storage
 	vector<Point> points;
