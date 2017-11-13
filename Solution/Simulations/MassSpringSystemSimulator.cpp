@@ -55,9 +55,11 @@ void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateCon
 			Vec3 position = getPositionOfMassPoint(i);
 			drawSphere(position);
 		}
-		drawLine(getPositionOfMassPoint(0), getPositionOfMassPoint(1));
+		for (int i = 0; i < springs.size(); i++) {
+			drawLine(getPositionOfMassPoint(springs[i].point1), getPositionOfMassPoint(springs[i].point2));
+		}
 	} break;
-	case 3: 
+	case 3: {
 		int numMassPoints = getNumberOfMassPoints();
 		for (int i = 0; i < numMassPoints; i++) {
 			Vec3 position = getPositionOfMassPoint(i);
@@ -66,6 +68,8 @@ void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateCon
 		for (int i = 0; i < springs.size(); i++) {
 			drawLine(getPositionOfMassPoint(springs[i].point1), getPositionOfMassPoint(springs[i].point2));
 		}
+	} break;
+	default:
 		break;
 	}
 }
@@ -88,10 +92,10 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 		massPoint2 = addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
 		addSpring(massPoint1, massPoint2, 1);
 		// Determines how many steps to calculate
-		int numSteps = 3;
+		int numSteps = 10;
 		for (int i = 0; i < numSteps; i++) {
 			// Calculate one euler step
-			EulerStep(0.1f);
+			EulerStep(0.005f);
 			// Print results
 			cout << "Euler step " << i + 1 << ":\n";
 			for (std::vector<Point>::iterator it = points.begin(); it != points.end(); ++it) {
@@ -106,7 +110,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 		addSpring(massPoint1, massPoint2, 1);
 		for (int i = 0; i < numSteps; i++) {
 			// Calculate one midpoint step
-			MidpointStep(0.1f);
+			MidpointStep(0.005f);
 			// Print values
 			cout << "Midpoint step " << i + 1 << ":\n";
 			for (std::vector<Point>::iterator it = points.begin(); it != points.end(); ++it) {
@@ -151,6 +155,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 
 void MassSpringSystemSimulator::externalForcesCalculations(float timeElapsed)
 {
+	// TODO
 }
 
 void MassSpringSystemSimulator::simulateTimestep(float timeStep)
@@ -173,8 +178,7 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep)
 		else {
 			MidpointStep(0.005f);
 		}
-
-		break			;
+		break;
 	default:
 		break;
 	}
@@ -321,8 +325,10 @@ void MassSpringSystemSimulator::MidpointStep(float timestep)
 		newPos1 = p1.position + timestep * p1temp.velocity;
 		newPos2 = p2.position + timestep * p2temp.velocity;
 		// Feed temporary values to spring
-		points[currentSpring.point1] = p1temp;
-		points[currentSpring.point2] = p2temp;
+		if (!points[currentSpring.point1].isFixed)
+			points[currentSpring.point1] = p1temp;
+		if (!points[currentSpring.point2].isFixed)
+			points[currentSpring.point2] = p2temp;
 		// Calculate current spring length at t + h / 2
 		Vec3 diff = p1temp.position - p2temp.position;
 		float newLength = sqrtf(pow(diff.x, 2) + pow(diff.y, 2) + pow(diff.z, 2));
