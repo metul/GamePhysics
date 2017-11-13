@@ -21,7 +21,9 @@ void MassSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 	case 0:break;
 	case 1:break;
 	case 2:break;
-	case 3:break;
+	case 3:
+		TwAddVarRW(DUC->g_pTweakBar, "Use Euler", TW_TYPE_BOOL16, &useEuler, "");
+		break;
 	default:break;
 	}
 }
@@ -55,7 +57,16 @@ void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateCon
 		}
 		drawLine(getPositionOfMassPoint(0), getPositionOfMassPoint(1));
 	} break;
-	case 3: break;
+	case 3: 
+		int numMassPoints = getNumberOfMassPoints();
+		for (int i = 0; i < numMassPoints; i++) {
+			Vec3 position = getPositionOfMassPoint(i);
+			drawSphere(position);
+		}
+		for (int i = 0; i < springs.size(); i++) {
+			drawLine(getPositionOfMassPoint(springs[i].point1), getPositionOfMassPoint(springs[i].point2));
+		}
+		break;
 	}
 }
 
@@ -123,6 +134,14 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 	} break;
 	case 3:
 		cout << "Demo4 !\n";
+		setMass(10);
+		setStiffness(40);
+		int massPoint1, massPoint2, massPoint3;
+		massPoint1 = addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
+		massPoint2 = addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
+		massPoint3 = addMassPoint(Vec3(1, 0, 0), Vec3(0, 0, 0), true);
+		addSpring(massPoint1, massPoint2, 1);
+		addSpring(massPoint2, massPoint3, 1);
 		break;
 	default:
 		cout << "Empty Test!\n";
@@ -148,7 +167,14 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep)
 		MidpointStep(0.005f);
 		break;
 	case 3:
-		break;
+		if (useEuler) {
+			EulerStep(0.005f);
+		}
+		else {
+			MidpointStep(0.005f);
+		}
+
+		break			;
 	default:
 		break;
 	}
@@ -254,8 +280,12 @@ void MassSpringSystemSimulator::EulerStep(float timestep)
 		p2.position = newPos2;
 		p1.velocity = newVel1;
 		p2.velocity = newVel2;
-		points[currentSpring.point1] = p1;
-		points[currentSpring.point2] = p2;
+		if (!points[currentSpring.point1].isFixed) {
+			points[currentSpring.point1] = p1;
+		}
+		if (!points[currentSpring.point2].isFixed) {
+			points[currentSpring.point2] = p2;
+		}
 		currentSpring.currentLength = newLength;
 		springs[i] = currentSpring;
 	}
@@ -312,8 +342,12 @@ void MassSpringSystemSimulator::MidpointStep(float timestep)
 		p2.position = newPos2;
 		p1.velocity = newVel1;
 		p2.velocity = newVel2;
-		points[currentSpring.point1] = p1;
-		points[currentSpring.point2] = p2;
+		if (!points[currentSpring.point1].isFixed) {
+			points[currentSpring.point1] = p1;
+		}
+		if (!points[currentSpring.point2].isFixed) {
+			points[currentSpring.point2] = p2;
+		}
 		currentSpring.currentLength = newLength;
 		springs[i] = currentSpring;
 	}
