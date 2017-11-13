@@ -88,6 +88,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 	case 0:
 	{
 		cout << "Demo1 !\n";
+		mouseInput = false;
 		setMass(10);
 		setStiffness(40);
 		setGravity(0);
@@ -96,10 +97,10 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 		massPoint2 = addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
 		addSpring(massPoint1, massPoint2, 1);
 		// Determines how many steps to calculate
-		int numSteps = 10;
+		int numSteps = 1;
 		for (int i = 0; i < numSteps; i++) {
 			// Calculate one euler step
-			EulerStep(0.005f);
+			EulerStep(0.1f);
 			// Print results
 			cout << "Euler step " << i + 1 << ":\n";
 			for (std::vector<Point>::iterator it = points.begin(); it != points.end(); ++it) {
@@ -114,7 +115,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 		addSpring(massPoint1, massPoint2, 1);
 		for (int i = 0; i < numSteps; i++) {
 			// Calculate one midpoint step
-			MidpointStep(0.005f);
+			MidpointStep(0.1f);
 			// Print values
 			cout << "Midpoint step " << i + 1 << ":\n";
 			for (std::vector<Point>::iterator it = points.begin(); it != points.end(); ++it) {
@@ -124,6 +125,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 	} break;
 	case 1: {
 		cout << "Demo2 !\n";
+		mouseInput = false;
 		setMass(10);
 		setStiffness(40);
 		setGravity(0);
@@ -134,6 +136,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 	} break;
 	case 2: {
 		cout << "Demo3 !\n";
+		mouseInput = false;
 		setMass(10);
 		setStiffness(40);
 		setGravity(0);
@@ -144,6 +147,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase)
 	} break;
 	case 3:
 		cout << "Demo4 !\n";
+		mouseInput = true;
 		setMass(10);
 		setStiffness(40);
 		setGravity(9.81f);
@@ -415,8 +419,10 @@ void MassSpringSystemSimulator::MidpointStep(float timestep)
 			newVel1 += m_fGravity * timestep;
 			newVel2 += m_fGravity * timestep;
 		}
-		newVel1 += m_externalForce;
-		newVel2 += m_externalForce;
+		if (mouseInput) {
+			newVel1 += m_externalForce;
+			newVel2 += m_externalForce;
+		}
 		// Calculate current length
 		diff = newPos1 - newPos2;
 		newLength = sqrtf(pow(diff.x, 2) + pow(diff.y, 2) + pow(diff.z, 2));
