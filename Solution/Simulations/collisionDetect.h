@@ -3,6 +3,8 @@
 #include <Vector>
 using namespace DirectX;
 
+// foo
+
 // the return structure, with these values, you should be able to calculate the impulse
 // the depth shouldn't be used in your impulse calculation, it is a redundant value
 // if the normalWorld == XMVectorZero(), no collision
