@@ -1,9 +1,13 @@
 ﻿// header file:
 #include <DirectXMath.h>
 #include <Vector>
-using namespace DirectX;
 
-// foo
+// vector mat quat
+#include "util/vectorbase.h"
+#include "util/matrixbase.h"
+#include "util/quaternion.h"
+
+using namespace DirectX;
 
 // the return structure, with these values, you should be able to calculate the impulse
 // the depth shouldn't be used in your impulse calculation, it is a redundant value
