@@ -2,6 +2,7 @@
 
 RigidBodySystemSimulator::RigidBodySystemSimulator()
 {
+	m_iTestCase = 0;
 }
 
 // Functions
