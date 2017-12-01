@@ -10,11 +10,11 @@ void RigidBodySystem::initializeInverseInertiaTensor()
 	double I_h = ((pow(w, 2) + pow(d, 2)) / 12)*mass;
 	double I_d = ((pow(w, 2) + pow(h, 2)) / 12)*mass;
 	inertiaTensorRaw  = Mat4d(I_w, 0, 0, 0, 0, I_h, 0, 0, 0, 0, I_d, 0, 0, 0, 0, 1);
-	Mat4d rotMat = orientation.getRotMat();
-	rotMat.transpose();
-	inertiaTensorInitial = orientation.getRotMat() * inertiaTensorRaw.inverse() * rotMat;
-	std::cout << inertiaTensorRaw << " " << orientation.getRotMat() << std::endl;
-	std::cout << inertiaTensorInitial << std::endl;	
+	//Mat4d rotMat = orientation.getRotMat();
+	//rotMat.transpose();
+	//inertiaTensorInitial = orientation.getRotMat() * inertiaTensorRaw.inverse() * rotMat;
+	inertiaTensorInitial = inertiaTensorRaw.inverse();
+	//std::cout << inertiaTensorInitial << std::endl;	
 }
 
 void RigidBodySystem::calculatePosition(float timestep)
@@ -29,6 +29,37 @@ void RigidBodySystem::calculateLinearVelocity(float timestep)
 
 void RigidBodySystem::calculateOrientation(float timestep)
 {
+}
+
+void RigidBodySystem::calculateInertiaTensor()
+{
+	Mat4d rotMat = orientation.getRotMat();
+	rotMat.transpose();
+	inertiaTensorCurrent = orientation.getRotMat() * inertiaTensorInitial * rotMat;
+
+}
+
+void RigidBodySystem::calculateAngularMomentum(float timestep)
+{
+	AngularMomentum += timestep * torque;
+}
+
+void RigidBodySystem::calculateAngularVelocity()
+{
+	AngularVelocity = inertiaTensorCurrent * AngularMomentum;
+}
+
+void RigidBodySystem::demo1(float timestep)
+{
+	calculatePosition(timestep);
+	calculateLinearVelocity(timestep);
+	calculateOrientation(timestep);
+	calculateAngularMomentum(timestep);
+	calculateInertiaTensor();
+	calculateAngularVelocity();
+
+	std::cout << "position:" << position << " velocity:" << LinearVelocity << " torque:" << torque << " AngularMomentum" << AngularMomentum << " InertiaTensor:" << inertiaTensorCurrent << " AngularVelocity:" << AngularVelocity << std::endl;
+
 }
 
 Vec3 RigidBodySystem::getPosition()

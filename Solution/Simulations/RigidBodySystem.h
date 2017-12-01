@@ -12,7 +12,11 @@ public:
 	void calculatePosition(float timestep);
 	void calculateLinearVelocity(float timestep);
 	void calculateOrientation(float timestep);
-	void calculateInertiaTensor(float timestep);
+	void calculateInertiaTensor();
+	void calculateAngularMomentum(float timestep);
+	void calculateAngularVelocity();
+
+	void demo1(float timestep);
 
 	// Getter and setters
 	Vec3 getPosition();
