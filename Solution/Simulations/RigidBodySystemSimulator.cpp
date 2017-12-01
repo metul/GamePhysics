@@ -56,7 +56,7 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 		//Debug
 		addRigidBody(Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 0.6f, 0.5f), 2.0f);
 		setOrientationOf(0, Quat(Vec3(0.0f, 0.0f, 1.0f), (float)(M_PI)* 0.5f));
-		//applyForceOnBody(0, Vec3(0.3f, 0.5f, 0.25f), Vec3(1.0f, 1.0f, 0.0f));
+		applyForceOnBody(0, Vec3(0.3f, 0.5f, 0.25f), Vec3(1.0f, 1.0f, 0.0f));
 		break;
 	case 1: break;
 	case 2: break;
@@ -143,6 +143,7 @@ Vec3 RigidBodySystemSimulator::getAngularVelocityOfRigidBody(int i)
 
 void RigidBodySystemSimulator::applyForceOnBody(int i, Vec3 loc, Vec3 force)
 {
+	rigidBodies[i].Angular = cross(loc, force);
 }
 
 void RigidBodySystemSimulator::addRigidBody(Vec3 position, Vec3 size, int mass)
@@ -151,13 +152,13 @@ void RigidBodySystemSimulator::addRigidBody(Vec3 position, Vec3 size, int mass)
 	tmp.position = position;
 	tmp.size = size;
 	tmp.mass = mass;
-	tmp.initializeInverseInertiaTensor();
 	rigidBodies.push_back(tmp);
 }
 
 void RigidBodySystemSimulator::setOrientationOf(int i, Quat orientation)
 {
 	rigidBodies[i].orientation = orientation;
+	rigidBodies[i].initializeInverseInertiaTensor();
 }
 
 void RigidBodySystemSimulator::setVelocityOf(int i, Vec3 velocity)
