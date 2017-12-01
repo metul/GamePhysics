@@ -14,6 +14,110 @@ void RigidBodySystem::initializeInverseInertiaTensor()
 	rotMat.transpose();
 	inertiaTensorInitial = orientation.getRotMat() * inertiaTensorRaw.inverse() * rotMat;
 	std::cout << inertiaTensorRaw << " " << orientation.getRotMat() << std::endl;
-	std::cout << inertiaTensorInitial << std::endl;
-	
+	std::cout << inertiaTensorInitial << std::endl;	
 }
+
+void RigidBodySystem::calculatePosition(float timestep)
+{
+	position += timestep * LinearVelocity;
+}
+
+void RigidBodySystem::calculateLinearVelocity(float timestep)
+{
+	LinearVelocity += timestep * externalForces / mass;
+}
+
+void RigidBodySystem::calculateOrientation(float timestep)
+{
+}
+
+Vec3 RigidBodySystem::getPosition()
+{
+	return position;
+}
+
+Vec3 RigidBodySystem::getSize()
+{
+	return size;
+}
+
+Quat RigidBodySystem::getOrientation()
+{
+	return orientation;
+}
+
+int RigidBodySystem::getMass()
+{
+	return mass;
+}
+
+Vec3 RigidBodySystem::getLinearVelocity()
+{
+	return LinearVelocity;
+}
+
+Vec3 RigidBodySystem::getAngularVelocity()
+{
+	return AngularVelocity;
+}
+
+Vec3 RigidBodySystem::getMomentum()
+{
+	return AngularMomentum;
+}
+
+void RigidBodySystem::setPosition(Vec3 p)
+{
+	position = p;
+}
+
+void RigidBodySystem::setSize(Vec3 s)
+{
+	size = s;
+}
+
+void RigidBodySystem::setOrientation(Quat o)
+{
+	orientation = o;
+}
+
+void RigidBodySystem::setMass(int m)
+{
+	mass = m;
+}
+
+void RigidBodySystem::setLinearVelocity(Vec3 lV)
+{
+	LinearVelocity = lV;
+}
+
+void RigidBodySystem::setAngularVelocity(Vec3 aV)
+{
+	AngularVelocity = aV;
+}
+
+void RigidBodySystem::setMomentum(Vec3 m)
+{
+	AngularMomentum = m;
+}
+
+Vec3 RigidBodySystem::getTorque()
+{
+	return torque;
+}
+
+Vec3 RigidBodySystem::getExternalForces()
+{
+	return externalForces;
+}
+
+void RigidBodySystem::setTorque(Vec3 t)
+{
+	torque = t;
+}
+
+void RigidBodySystem::setExternalForces(Vec3 f)
+{
+	externalForces = f;
+}
+

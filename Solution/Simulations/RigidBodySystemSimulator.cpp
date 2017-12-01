@@ -128,40 +128,40 @@ int RigidBodySystemSimulator::getNumberOfRigidBodies()
 
 Vec3 RigidBodySystemSimulator::getPositionOfRigidBody(int i)
 {
-	return rigidBodies[i].position;
+	return rigidBodies[i].getPosition();
 }
 
 Vec3 RigidBodySystemSimulator::getLinearVelocityOfRigidBody(int i)
 {
-	return rigidBodies[i].LinearVelocity;
+	return rigidBodies[i].getLinearVelocity();
 }
 
 Vec3 RigidBodySystemSimulator::getAngularVelocityOfRigidBody(int i)
 {
-	return rigidBodies[i].AngularVelocity;
+	return rigidBodies[i].getAngularVelocity();
 }
 
 void RigidBodySystemSimulator::applyForceOnBody(int i, Vec3 loc, Vec3 force)
 {
-	rigidBodies[i].Angular = cross(loc, force);
+	rigidBodies[i].setTorque(cross(loc, force));
 }
 
 void RigidBodySystemSimulator::addRigidBody(Vec3 position, Vec3 size, int mass)
 {
 	RigidBodySystem tmp;
-	tmp.position = position;
-	tmp.size = size;
-	tmp.mass = mass;
+	tmp.setPosition(position);
+	tmp.setSize(size);
+	tmp.setMass(mass);
 	rigidBodies.push_back(tmp);
 }
 
 void RigidBodySystemSimulator::setOrientationOf(int i, Quat orientation)
 {
-	rigidBodies[i].orientation = orientation;
+	rigidBodies[i].setOrientation(orientation);
 	rigidBodies[i].initializeInverseInertiaTensor();
 }
 
 void RigidBodySystemSimulator::setVelocityOf(int i, Vec3 velocity)
 {
-	rigidBodies[i].LinearVelocity = velocity;
+	rigidBodies[i].setLinearVelocity(velocity);
 }
