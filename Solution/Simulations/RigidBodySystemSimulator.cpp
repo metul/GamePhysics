@@ -23,7 +23,9 @@ void RigidBodySystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 	case 2:
 		TwAddVarRW(DUC->g_pTweakBar, "Use Collision", TW_TYPE_BOOL8, &useCollision, "");
 		break;
-	case 3:break;
+	case 3:
+		TwAddVarRW(DUC->g_pTweakBar, "Use Collision", TW_TYPE_BOOL8, &useCollision, ""); 
+		break;
 	default:break;
 	}
 }
@@ -54,7 +56,14 @@ void RigidBodySystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateCont
 		}
 	}
 		break;
-	case 3: break;
+	case 3:
+	{
+		for (int i = 0; i < rigidBodies.size(); i++) {
+			Mat4 transformation = calculateTransform(i);
+			drawRigidBox(transformation);
+		}
+	}
+		break;
 	default: break;
 	}
 }
@@ -118,7 +127,25 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 		*/
 	}
 		break;
-	case 3: break;
+	case 3: 
+	{
+		addRigidBody(Vec3(-2.0f, 0.0f, 0.0f), Vec3(3.0f, 2.0f, 2.0f), 10.0f);
+		setOrientationOf(0, Quat(Vec3(0.0f, 0.0f, 0.0f), (float)(M_PI)* 0.5f));
+		applyForceOnBody(0, Vec3(0.2f, 5.0f, 1.0f), Vec3(1.0f, 0.0f, 1.0f));
+		
+		
+		addRigidBody(Vec3(0.0f, -3.0f, 0), Vec3(1.0f, 1.0f, 1.0f), 6.0f);
+		setOrientationOf(1, Quat(Vec3(0.0f, 0.0f, 0.0f), (float)(M_PI)* 0.5f));
+		applyForceOnBody(1, Vec3(2.0f, 0.0f, 3.0f), Vec3(1.0f, 0.0f, 0.0f));
+
+		addRigidBody(Vec3(5.0f, 0.5f, 0.0f), Vec3(2.0f, 1.0f, 2.0f), 2.0f);
+		setOrientationOf(2, Quat(Vec3(1.0f, 0.0f, 0.5f), (float)(M_PI)* 0.5f));
+
+		addRigidBody(Vec3(-8.0f, 4.0f, 0.0f), Vec3(2.0f, 2.0f, 4.0f), 5.0f);
+		setOrientationOf(3, Quat(Vec3(0.0f, 0.0f, 0.0f), (float)(M_PI)* 0.5f));
+		applyForceOnBody(3, Vec3(3.0f, 1.0f, 0.0f), Vec3(-1.0f, 0.0f, 1.0f));
+	}
+		break;
 	default: break;
 	}
 }
@@ -161,6 +188,9 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 		}
 		break;
 	case 3:
+		for (int i = 0; i < rigidBodies.size(); i++) {
+			foo(i, timeStep);
+		}
 		break;
 	default:
 		break;
