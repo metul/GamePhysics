@@ -40,7 +40,8 @@ public:
 	void setExternalForces(Vec3 f);
 	Mat4d getinertiaTensorCurrent();
 
-	void applyForce(Vec3 loc, Vec3 force);
+	void applyForce(Vec3 xi, Vec3 force);
+	bool isStationary();
 
 
 private:

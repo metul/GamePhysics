@@ -158,9 +158,29 @@ Mat4d RigidBodySystem::getinertiaTensorCurrent()
 	return inertiaTensorCurrent;
 }
 
-void RigidBodySystem::applyForce(Vec3 loc, Vec3 force)
+void RigidBodySystem::applyForce(Vec3 xi, Vec3 force)
 {
-	setTorque(cross(loc, force));
+	setTorque(cross(xi, force));
 	setExternalForces(force);
+}
+
+bool RigidBodySystem::isStationary()
+{	
+	bool isLinearVelocityZero, isAngularVelocityZero;
+	// Linear
+	if (LinearVelocity.x == 0 && LinearVelocity.y == 0 && LinearVelocity.z == 0) {
+		isLinearVelocityZero = true;
+	}
+	else {
+		isLinearVelocityZero = false;
+	}
+	// Angular
+	if (AngularVelocity.x == 0 && AngularVelocity.y == 0 && AngularVelocity.z == 0) {
+		isAngularVelocityZero = true;
+	}
+	else {
+		isAngularVelocityZero = false;
+	}
+	return isLinearVelocityZero && isAngularVelocityZero;
 }
 

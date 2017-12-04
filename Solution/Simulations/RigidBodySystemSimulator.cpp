@@ -112,7 +112,8 @@ void RigidBodySystemSimulator::externalForcesCalculations(float timeElapsed)
 		float inputScale = 0.001f;
 		inputWorld = inputWorld * inputScale;
 		m_externalForce = inputWorld;
-		rigidBodies[0].applyForce(Vec3(m_mouse.x, m_mouse.y, 0), m_externalForce*10);
+		// rigidBodies[0].applyForce(Vec3(m_mouse.x, m_mouse.y, 0), m_externalForce*10); // MARK
+		applyForceOnBody(0, Vec3(m_mouse.x, m_mouse.y, 0), m_externalForce * 10); // MARK
 	}
 }
 
@@ -125,7 +126,7 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 		break;
 	case 1:	
 		//rigidBodies[0].mainAlgorithm(timeStep);
-		foo(0, 0.01);
+		foo(0, 0.01f);
 		break;
 	case 2:
 		for (int i = 0; i < rigidBodies.size(); i++) {
@@ -177,8 +178,10 @@ Vec3 RigidBodySystemSimulator::getAngularVelocityOfRigidBody(int i)
 
 void RigidBodySystemSimulator::applyForceOnBody(int i, Vec3 loc, Vec3 force)
 {
-	//rigidBodies[i].setTorque(cross(loc, force));
-	rigidBodies[i].applyForce(loc, force);
+	//rigidBodies[i].setTorque(cross(loc, force));	
+	//rigidBodies[i].applyForce(loc, force); // MARK
+	Vec3 xi = loc - rigidBodies[i].getPosition(); // MARK
+	rigidBodies[i].applyForce(xi, force); // MARK
 }
 
 void RigidBodySystemSimulator::addRigidBody(Vec3 position, Vec3 size, int mass)
@@ -229,6 +232,25 @@ void RigidBodySystemSimulator::foo(int index, float timeStep)
 				CollisionInfo simpletest = checkCollisionSAT(transformA, transformB);
 				if (simpletest.isValid) {
 					// Reaction
+					if (rigidBodies[index].isStationary() || rigidBodies[i].isStationary()) {
+						// One of the rigid bodies is stationary
+						RigidBodySystem nonStationaryRigidBody;
+						if (rigidBodies[index].isStationary()) {
+							nonStationaryRigidBody = rigidBodies[i];
+						}
+						else {
+							nonStationaryRigidBody = rigidBodies[index];
+						}
+						//Vec3 relativeVelocity, n, x, tmp;
+						//double c = 0; // Constant = 0
+						//relativeVelocity = nonStationaryRigidBody.getLinearVelocity();
+						//n = simpletest.normalWorld;
+						//x = simpletest.collisionPointWorld - nonStationaryRigidBody.getPosition();
+						//double J;
+						//Vec3 tmp = dot(nonStationaryRigidBody.getinertiaTensorCurrent().inverse(), x * n);
+						//J = -(1 + c) * dot(relativeVelocity, n);
+						//J /= ((1 / nonStationaryRigidBody.getMass()) + dot(tmp * x, n));
+					}
 				}
 			}
 		}
