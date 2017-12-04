@@ -241,15 +241,33 @@ void RigidBodySystemSimulator::foo(int index, float timeStep)
 						else {
 							nonStationaryRigidBody = rigidBodies[index];
 						}
-						//Vec3 relativeVelocity, n, x, tmp;
-						//double c = 0; // Constant = 0
-						//relativeVelocity = nonStationaryRigidBody.getLinearVelocity();
-						//n = simpletest.normalWorld;
-						//x = simpletest.collisionPointWorld - nonStationaryRigidBody.getPosition();
-						//double J;
-						//Vec3 tmp = dot(nonStationaryRigidBody.getinertiaTensorCurrent().inverse(), x * n);
-						//J = -(1 + c) * dot(relativeVelocity, n);
-						//J /= ((1 / nonStationaryRigidBody.getMass()) + dot(tmp * x, n));
+						Vec3 relativeVelocity, n, x, tmp;
+						double c = 0; // Constant = 0
+						relativeVelocity = nonStationaryRigidBody.getLinearVelocity();
+						n = simpletest.normalWorld;
+						x = simpletest.collisionPointWorld - nonStationaryRigidBody.getPosition();
+						double J;
+						Vec3 tmp = nonStationaryRigidBody.getinertiaTensorCurrent().inverse().transformVector(cross(x, n));
+						J = -(1 + c) * dot(relativeVelocity, n);
+						J /= ((1 / nonStationaryRigidBody.getMass()) + dot(cross(tmp, x), n));
+					}
+					else {
+						Vec3 relativeVelocity, n, x_a, x_b, tmp;
+						int m_a, m_b;
+						m_a = rigidBodies[index].getMass();
+						m_b = rigidBodies[i].getMass();
+						double c = 0; // Constant = 0
+						relativeVelocity = rigidBodies[index].getLinearVelocity() - rigidBodies[i].getLinearVelocity();
+						n = simpletest.normalWorld;
+						x_a = simpletest.collisionPointWorld - rigidBodies[index].getPosition();
+						x_b = simpletest.collisionPointWorld - rigidBodies[i].getPosition();
+						double J;
+						Vec3 tmp_a, tmp_b, tmp;
+						tmp_a = rigidBodies[index].getinertiaTensorCurrent().inverse().transformVector(cross(x_a, n));
+						tmp_b = rigidBodies[i].getinertiaTensorCurrent().inverse().transformVector(cross(x_b, n));
+						tmp = cross(tmp_a, x_a) + cross(tmp_b, x_b);
+						J = -(1 + c) * dot(relativeVelocity, n);
+						J /= ((1 / m_a) + (1 / m_b) + dot(tmp, n));
 					}
 				}
 			}
