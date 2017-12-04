@@ -39,7 +39,7 @@ void RigidBodySystem::calculateInertiaTensor()
 {
 	Mat4d rotMat = orientation.getRotMat();
 	rotMat.transpose();
-	inertiaTensorCurrent = orientation.getRotMat() * inertiaTensorInitial * rotMat;
+	inertiaTensorCurrent = (orientation.getRotMat() * inertiaTensorInitial * rotMat).inverse();
 
 }
 
@@ -50,7 +50,7 @@ void RigidBodySystem::calculateAngularMomentum(float timestep)
 
 void RigidBodySystem::calculateAngularVelocity()
 {
-	AngularVelocity = inertiaTensorCurrent * AngularMomentum;
+	AngularVelocity = inertiaTensorCurrent.inverse() * AngularMomentum;
 }
 
 void RigidBodySystem::mainAlgorithm(float timestep)
