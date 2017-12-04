@@ -51,11 +51,11 @@ void RigidBodySystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateCont
 		translate = Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, tmpP.x, tmpP.y, tmpP.z, 1);
 		Mat4 transformation = scale * rotation * translate;
 		drawRigidBox(transformation);
-		/*	
+			
 		cout << "Scale: " << endl << scale << endl;
 		cout << "Rotation: " << endl << rotation << endl;
 		cout << "Translate: " << endl << translate << endl;
-		*/
+		
 	}	
 		break;
 	case 2: break;

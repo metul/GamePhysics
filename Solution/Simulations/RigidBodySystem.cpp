@@ -29,6 +29,10 @@ void RigidBodySystem::calculateLinearVelocity(float timestep)
 
 void RigidBodySystem::calculateOrientation(float timestep)
 {
+	double x = AngularVelocity.x;
+	double y = AngularVelocity.y;
+	double z = AngularVelocity.z;
+	orientation += timestep / 2 * Quat(0, x, y, z) * orientation;
 }
 
 void RigidBodySystem::calculateInertiaTensor()
@@ -58,7 +62,7 @@ void RigidBodySystem::mainAlgorithm(float timestep)
 	calculateInertiaTensor();
 	calculateAngularVelocity();
 
-	std::cout << "position:" << position << " velocity:" << LinearVelocity << " torque:" << torque << " AngularMomentum" << AngularMomentum << " InertiaTensor:" << inertiaTensorCurrent << " AngularVelocity:" << AngularVelocity << std::endl;
+	//std::cout << "position:" << position << " velocity:" << LinearVelocity << " torque:" << torque << " AngularMomentum" << AngularMomentum << " InertiaTensor:" << inertiaTensorCurrent << " AngularVelocity:" << AngularVelocity << std::endl;
 
 }
 
