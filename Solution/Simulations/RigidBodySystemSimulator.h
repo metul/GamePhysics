@@ -3,6 +3,7 @@
 #include "Simulator.h"
 //add your header for your rigid body system, for e.g.,
 #include "RigidBodySystem.h" 
+#include "collisionDetect.h"
 
 #define TESTCASEUSEDTORUNTEST 2
 
@@ -32,6 +33,9 @@ public:
 	void setOrientationOf(int i,Quat orientation);
 	void setVelocityOf(int i, Vec3 velocity);
 	void drawRigidBox(Mat4 transformation);
+
+	void foo(int index, float timeStep);
+	Mat4 calculateTransform(int index);
 
 
 private:

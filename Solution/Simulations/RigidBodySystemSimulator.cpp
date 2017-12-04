@@ -40,22 +40,8 @@ void RigidBodySystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateCont
 	{
 	case 0: break;
 	case 1: {
-		// Test
-		//Mat4 var = Mat4(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);
-		Mat4 scale, rotation, translate;
-		Vec3 tmpS = rigidBodies[0].getSize();
-		scale = Mat4(tmpS.x,0,0,0,0,tmpS.y,0,0,0,0,tmpS.z,0,0,0,0,1);
-		rotation = rigidBodies[0].getOrientation().getRotMat();
-		Vec3 tmpP = rigidBodies[0].getPosition();
-		//translate = Mat4(1,0,0,tmpP.x,0,1,0,tmpP.y,0,0,1,tmpP.z,0,0,0,1);
-		translate = Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, tmpP.x, tmpP.y, tmpP.z, 1);
-		Mat4 transformation = scale * rotation * translate;
-		drawRigidBox(transformation);
-			
-		cout << "Scale: " << endl << scale << endl;
-		cout << "Rotation: " << endl << rotation << endl;
-		cout << "Translate: " << endl << translate << endl;
-		
+		Mat4 transformation = calculateTransform(0);
+		drawRigidBox(transformation);	
 	}	
 		break;
 	case 2: break;
@@ -122,7 +108,8 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 	case 0:
 		break;
 	case 1:	
-		rigidBodies[0].mainAlgorithm(timeStep);
+		//rigidBodies[0].mainAlgorithm(timeStep);
+		foo(0, timeStep);
 		break;
 	case 2:
 		break;
@@ -209,4 +196,31 @@ void RigidBodySystemSimulator::drawRigidBox(Mat4 transformation)
 	//BodyA.Obj2WorldMatrix = BodyA.scaleMat * BodyA.rotMat * BodyA.translatMat;
 	//DUC->drawRigidBody( BodyA.Obj2WorldMatrix );
 	DUC->drawRigidBody(transformation);
+}
+
+void RigidBodySystemSimulator::foo(int index, float timeStep)
+{
+	Mat4 transformA, transformB;
+	transformA = calculateTransform(index);
+	// Iterate over list to detect collision with other rigidbodies
+
+	CollisionInfo simpletest = checkCollisionSAT(transformA, transformB);
+	/*
+	if(collision) {
+	// TODO
+	}
+	*/
+	rigidBodies[index].mainAlgorithm(timeStep);
+}
+
+Mat4 RigidBodySystemSimulator::calculateTransform(int index)
+{
+	Mat4 scale, rotation, translate;
+	Vec3 tmpS = rigidBodies[index].getSize();
+	scale = Mat4(tmpS.x, 0, 0, 0, 0, tmpS.y, 0, 0, 0, 0, tmpS.z, 0, 0, 0, 0, 1);
+	rotation = rigidBodies[index].getOrientation().getRotMat();
+	Vec3 tmpP = rigidBodies[index].getPosition();
+	translate = Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, tmpP.x, tmpP.y, tmpP.z, 1);
+	Mat4 transformation = scale * rotation * translate;
+	return transformation;
 }

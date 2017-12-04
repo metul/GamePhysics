@@ -63,7 +63,6 @@ void RigidBodySystem::mainAlgorithm(float timestep)
 	calculateAngularVelocity();
 
 	//std::cout << "position:" << position << " velocity:" << LinearVelocity << " torque:" << torque << " AngularMomentum" << AngularMomentum << " InertiaTensor:" << inertiaTensorCurrent << " AngularVelocity:" << AngularVelocity << std::endl;
-
 }
 
 Vec3 RigidBodySystem::getPosition()
