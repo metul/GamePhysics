@@ -38,6 +38,7 @@ public:
 	Vec3 getExternalForces();
 	void setTorque(Vec3 t);
 	void setExternalForces(Vec3 f);
+	Mat4d getinertiaTensorCurrent();
 
 	void applyForce(Vec3 loc, Vec3 force);
 

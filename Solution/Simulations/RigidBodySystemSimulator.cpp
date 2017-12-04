@@ -20,7 +20,9 @@ void RigidBodySystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 	{
 	case 0:break;
 	case 1:break;
-	case 2:break;
+	case 2:
+		TwAddVarRW(DUC->g_pTweakBar, "Use Collision", TW_TYPE_BOOL8, &useCollision, "");
+		break;
 	case 3:break;
 	default:break;
 	}
@@ -58,13 +60,27 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 	// TODO: Initialize different values for demo scenes?
 	switch (m_iTestCase)
 	{
-	case 0: 
+	case 0:
+	{
 		//Debug
 		addRigidBody(Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 0.6f, 0.5f), 2.0f);
 		setOrientationOf(0, Quat(Vec3(0.0f, 0.0f, 1.0f), (float)(M_PI)* 0.5f));
 		applyForceOnBody(0, Vec3(0.3f, 0.5f, 0.25f), Vec3(1.0f, 1.0f, 0.0f));
 		//rigidBodies[0].setExternalForces(Vec3(1, 1, 0));
-		rigidBodies[0].mainAlgorithm(2);
+		//rigidBodies[0].mainAlgorithm(2);
+		foo(0, 2);
+		Vec3 position, LinearVelocity, torque, AngularMomentum, AngularVelocity;
+		Mat4d inertiaTensorCurrent;
+		position = rigidBodies[0].getPosition();
+		LinearVelocity = rigidBodies[0].getLinearVelocity();
+		torque = rigidBodies[0].getTorque();
+		AngularMomentum = rigidBodies[0].getMomentum();
+		AngularVelocity = rigidBodies[0].getAngularVelocity();
+		inertiaTensorCurrent = rigidBodies[0].getinertiaTensorCurrent();
+		std::cout << "position:" << position << endl << "Velocity:" << LinearVelocity << endl <<
+			"Torque:" << torque << endl << "AngularMomentum" << AngularMomentum << endl <<
+			"InertiaTensor:" << endl << inertiaTensorCurrent << "AngularVelocity:" << AngularVelocity << std::endl;
+	}
 		break;
 	case 1: {
 		// Debug
@@ -109,9 +125,12 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 		break;
 	case 1:	
 		//rigidBodies[0].mainAlgorithm(timeStep);
-		foo(0, timeStep);
+		foo(0, 0.01);
 		break;
 	case 2:
+		for (int i = 0; i < rigidBodies.size(); i++) {
+			foo(i, timeStep);
+		}
 		break;
 	case 3:
 		break;
@@ -200,16 +219,20 @@ void RigidBodySystemSimulator::drawRigidBox(Mat4 transformation)
 
 void RigidBodySystemSimulator::foo(int index, float timeStep)
 {
-	Mat4 transformA, transformB;
-	transformA = calculateTransform(index);
-	// Iterate over list to detect collision with other rigidbodies
-
-	CollisionInfo simpletest = checkCollisionSAT(transformA, transformB);
-	/*
-	if(collision) {
-	// TODO
+	if (useCollision) {
+		Mat4 transformA, transformB;
+		transformA = calculateTransform(index);
+		// Iterate over list to detect collision with other rigidbodies
+		for (int i = 0; i < rigidBodies.size(); i++) {
+			if (i != index) {
+				transformB = calculateTransform(i);
+				CollisionInfo simpletest = checkCollisionSAT(transformA, transformB);
+				if (simpletest.isValid) {
+					// Reaction
+				}
+			}
+		}
 	}
-	*/
 	rigidBodies[index].mainAlgorithm(timeStep);
 }
 

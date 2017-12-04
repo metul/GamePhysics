@@ -61,8 +61,6 @@ void RigidBodySystem::mainAlgorithm(float timestep)
 	calculateAngularMomentum(timestep);
 	calculateInertiaTensor();
 	calculateAngularVelocity();
-
-	//std::cout << "position:" << position << " velocity:" << LinearVelocity << " torque:" << torque << " AngularMomentum" << AngularMomentum << " InertiaTensor:" << inertiaTensorCurrent << " AngularVelocity:" << AngularVelocity << std::endl;
 }
 
 Vec3 RigidBodySystem::getPosition()
@@ -153,6 +151,11 @@ void RigidBodySystem::setTorque(Vec3 t)
 void RigidBodySystem::setExternalForces(Vec3 f)
 {
 	externalForces = f;
+}
+
+Mat4d RigidBodySystem::getinertiaTensorCurrent()
+{
+	return inertiaTensorCurrent;
 }
 
 void RigidBodySystem::applyForce(Vec3 loc, Vec3 force)
