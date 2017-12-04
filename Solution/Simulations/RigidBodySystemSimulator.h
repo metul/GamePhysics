@@ -36,6 +36,7 @@ public:
 
 	void foo(int index, float timeStep);
 	Mat4 calculateTransform(int index);
+	void reactAfterCollision(int i, double J, Vec3 n, int helpVariable, Vec3 x);
 
 
 private:

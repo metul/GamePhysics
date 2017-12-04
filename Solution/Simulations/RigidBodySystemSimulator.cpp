@@ -46,7 +46,14 @@ void RigidBodySystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateCont
 		drawRigidBox(transformation);	
 	}	
 		break;
-	case 2: break;
+	case 2: 
+	{
+		for (int i = 0; i < rigidBodies.size(); i++) {
+			Mat4 transformation = calculateTransform(i);
+			drawRigidBox(transformation);
+		}
+	}
+		break;
 	case 3: break;
 	default: break;
 	}
@@ -90,7 +97,15 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 		//rigidBodies[0].setExternalForces(Vec3(1, 1, 0));
 	}
 		break;
-	case 2: break;
+	case 2: 
+	{
+		addRigidBody(Vec3(0.0f, 0.0f, 0.0f), Vec3(0.9f, 0.2f, 0.3f), 2.0f);
+		setOrientationOf(0, Quat(Vec3(0.0f, 0.0f, 0.0f), (float)(M_PI)* 0.5f));
+		applyForceOnBody(0, Vec3(0.2f, 5.0f, 1.0f), Vec3(1.0f, 1.0f, 1.0f));
+		addRigidBody(Vec3(3.0f, 3.0f, 3.0f), Vec3(0.5656854f, 0.5656854f, 0.20f), 2.0f);
+		setOrientationOf(1, Quat(Vec3(0.0f, 0.0f, 0.5f), (float)(M_PI)* 0.5f));
+	}
+		break;
 	case 3: break;
 	default: break;
 	}
@@ -231,44 +246,42 @@ void RigidBodySystemSimulator::foo(int index, float timeStep)
 				transformB = calculateTransform(i);
 				CollisionInfo simpletest = checkCollisionSAT(transformA, transformB);
 				if (simpletest.isValid) {
-					// Reaction
+					double J;
+					Vec3 n, x_a, x_b, relativeVelocity;
+					n = simpletest.normalWorld;
+					x_a = simpletest.collisionPointWorld - rigidBodies[index].getPosition();
+					x_b = simpletest.collisionPointWorld - rigidBodies[i].getPosition();
+					relativeVelocity = rigidBodies[index].getLinearVelocity() - rigidBodies[i].getLinearVelocity();
+					double c = 0; // Constant = 0
+					J = -(1 + c) * dot(relativeVelocity, n);
 					if (rigidBodies[index].isStationary() || rigidBodies[i].isStationary()) {
 						// One of the rigid bodies is stationary
-						RigidBodySystem nonStationaryRigidBody;
+						Vec3 tmp;					
 						if (rigidBodies[index].isStationary()) {
-							nonStationaryRigidBody = rigidBodies[i];
+							Vec3 tmp = rigidBodies[i].getinertiaTensorCurrent().inverse().transformVector(cross(x_b, n));						
+							J /= ((1 / rigidBodies[i].getMass()) + dot(cross(tmp, x_b), n));
 						}
 						else {
-							nonStationaryRigidBody = rigidBodies[index];
+							Vec3 tmp = rigidBodies[index].getinertiaTensorCurrent().inverse().transformVector(cross(x_a, n));
+							J /= ((1 / rigidBodies[index].getMass()) + dot(cross(tmp, x_a), n));
 						}
-						Vec3 relativeVelocity, n, x, tmp;
-						double c = 0; // Constant = 0
-						relativeVelocity = nonStationaryRigidBody.getLinearVelocity();
-						n = simpletest.normalWorld;
-						x = simpletest.collisionPointWorld - nonStationaryRigidBody.getPosition();
-						double J;
-						Vec3 tmp = nonStationaryRigidBody.getinertiaTensorCurrent().inverse().transformVector(cross(x, n));
-						J = -(1 + c) * dot(relativeVelocity, n);
-						J /= ((1 / nonStationaryRigidBody.getMass()) + dot(cross(tmp, x), n));
 					}
 					else {
-						Vec3 relativeVelocity, n, x_a, x_b, tmp;
 						int m_a, m_b;
 						m_a = rigidBodies[index].getMass();
 						m_b = rigidBodies[i].getMass();
-						double c = 0; // Constant = 0
-						relativeVelocity = rigidBodies[index].getLinearVelocity() - rigidBodies[i].getLinearVelocity();
-						n = simpletest.normalWorld;
-						x_a = simpletest.collisionPointWorld - rigidBodies[index].getPosition();
-						x_b = simpletest.collisionPointWorld - rigidBodies[i].getPosition();
-						double J;
 						Vec3 tmp_a, tmp_b, tmp;
 						tmp_a = rigidBodies[index].getinertiaTensorCurrent().inverse().transformVector(cross(x_a, n));
 						tmp_b = rigidBodies[i].getinertiaTensorCurrent().inverse().transformVector(cross(x_b, n));
 						tmp = cross(tmp_a, x_a) + cross(tmp_b, x_b);
-						J = -(1 + c) * dot(relativeVelocity, n);
 						J /= ((1 / m_a) + (1 / m_b) + dot(tmp, n));
 					}
+					// Debug
+					std::printf("collision detected at normal: %f, %f, %f\n", simpletest.normalWorld.x, simpletest.normalWorld.y, simpletest.normalWorld.z);
+					std::printf("collision point : %f, %f, %f\n", (simpletest.collisionPointWorld).x, (simpletest.collisionPointWorld).y, simpletest.collisionPointWorld.z);
+					// Reaction
+					reactAfterCollision(index, J, n, 1, x_a);
+					reactAfterCollision(i, J, n, -1, x_b);
 				}
 			}
 		}
@@ -286,4 +299,10 @@ Mat4 RigidBodySystemSimulator::calculateTransform(int index)
 	translate = Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, tmpP.x, tmpP.y, tmpP.z, 1);
 	Mat4 transformation = scale * rotation * translate;
 	return transformation;
+}
+
+void RigidBodySystemSimulator::reactAfterCollision(int i, double J, Vec3 n, int helpVariable, Vec3 x)
+{
+	rigidBodies[i].setLinearVelocity(rigidBodies[i].getLinearVelocity() + helpVariable * (J * n / rigidBodies[i].getMass()));
+	rigidBodies[i].setMomentum(rigidBodies[i].getMomentum() + helpVariable * (cross(x, J * n)));
 }
