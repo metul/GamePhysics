@@ -16,7 +16,7 @@ public:
 	void calculateAngularMomentum(float timestep);
 	void calculateAngularVelocity();
 
-	void demo1(float timestep);
+	void mainAlgorithm(float timestep);
 
 	// Getter and setters
 	Vec3 getPosition();
@@ -38,6 +38,8 @@ public:
 	Vec3 getExternalForces();
 	void setTorque(Vec3 t);
 	void setExternalForces(Vec3 f);
+
+	void applyForce(Vec3 loc, Vec3 force);
 
 
 private:

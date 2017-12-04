@@ -49,7 +49,7 @@ void RigidBodySystem::calculateAngularVelocity()
 	AngularVelocity = inertiaTensorCurrent * AngularMomentum;
 }
 
-void RigidBodySystem::demo1(float timestep)
+void RigidBodySystem::mainAlgorithm(float timestep)
 {
 	calculatePosition(timestep);
 	calculateLinearVelocity(timestep);
@@ -150,5 +150,11 @@ void RigidBodySystem::setTorque(Vec3 t)
 void RigidBodySystem::setExternalForces(Vec3 f)
 {
 	externalForces = f;
+}
+
+void RigidBodySystem::applyForce(Vec3 loc, Vec3 force)
+{
+	setTorque(cross(loc, force));
+	setExternalForces(force);
 }
 

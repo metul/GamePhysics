@@ -39,7 +39,25 @@ void RigidBodySystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateCont
 	switch (m_iTestCase)
 	{
 	case 0: break;
-	case 1: break;
+	case 1: {
+		// Test
+		//Mat4 var = Mat4(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);
+		Mat4 scale, rotation, translate;
+		Vec3 tmpS = rigidBodies[0].getSize();
+		scale = Mat4(tmpS.x,0,0,0,0,tmpS.y,0,0,0,0,tmpS.z,0,0,0,0,1);
+		rotation = rigidBodies[0].getOrientation().getRotMat();
+		Vec3 tmpP = rigidBodies[0].getPosition();
+		//translate = Mat4(1,0,0,tmpP.x,0,1,0,tmpP.y,0,0,1,tmpP.z,0,0,0,1);
+		translate = Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, tmpP.x, tmpP.y, tmpP.z, 1);
+		Mat4 transformation = scale * rotation * translate;
+		drawRigidBox(transformation);
+		/*	
+		cout << "Scale: " << endl << scale << endl;
+		cout << "Rotation: " << endl << rotation << endl;
+		cout << "Translate: " << endl << translate << endl;
+		*/
+	}	
+		break;
 	case 2: break;
 	case 3: break;
 	default: break;
@@ -49,6 +67,8 @@ void RigidBodySystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateCont
 void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 {
 	m_iTestCase = testCase;
+	// Reset
+	rigidBodies.clear();
 	// TODO: Initialize different values for demo scenes?
 	switch (m_iTestCase)
 	{
@@ -57,9 +77,17 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 		addRigidBody(Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 0.6f, 0.5f), 2.0f);
 		setOrientationOf(0, Quat(Vec3(0.0f, 0.0f, 1.0f), (float)(M_PI)* 0.5f));
 		applyForceOnBody(0, Vec3(0.3f, 0.5f, 0.25f), Vec3(1.0f, 1.0f, 0.0f));
-		rigidBodies[0].demo1(2);
+		//rigidBodies[0].setExternalForces(Vec3(1, 1, 0));
+		rigidBodies[0].mainAlgorithm(2);
 		break;
-	case 1: break;
+	case 1: {
+		// Debug
+		addRigidBody(Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 0.5f, 0.5f), 2.0f);
+		setOrientationOf(0, Quat(Vec3(0.0f, 0.0f, 1.0f), (float)(M_PI)* 0.5f));
+		applyForceOnBody(0, Vec3(0.3f, 0.5f, 0.25f), Vec3(1.0f, 1.0f, 0.0f));
+		//rigidBodies[0].setExternalForces(Vec3(1, 1, 0));
+	}
+		break;
 	case 2: break;
 	case 3: break;
 	default: break;
@@ -96,6 +124,7 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 	case 0:
 		break;
 	case 1:	
+		rigidBodies[0].mainAlgorithm(timeStep);
 		break;
 	case 2:
 		break;
@@ -144,7 +173,8 @@ Vec3 RigidBodySystemSimulator::getAngularVelocityOfRigidBody(int i)
 
 void RigidBodySystemSimulator::applyForceOnBody(int i, Vec3 loc, Vec3 force)
 {
-	rigidBodies[i].setTorque(cross(loc, force));
+	//rigidBodies[i].setTorque(cross(loc, force));
+	rigidBodies[i].applyForce(loc, force);
 }
 
 void RigidBodySystemSimulator::addRigidBody(Vec3 position, Vec3 size, int mass)
@@ -154,7 +184,7 @@ void RigidBodySystemSimulator::addRigidBody(Vec3 position, Vec3 size, int mass)
 	tmp.setSize(size);
 	tmp.setMass(mass);
 	tmp.setMomentum(Vec3(0,0,0));
-	tmp.setExternalForces(Vec3(1, 1, 0));
+	//tmp.setExternalForces(Vec3(1, 1, 0));
 	rigidBodies.push_back(tmp);
 }
 
@@ -167,4 +197,18 @@ void RigidBodySystemSimulator::setOrientationOf(int i, Quat orientation)
 void RigidBodySystemSimulator::setVelocityOf(int i, Vec3 velocity)
 {
 	rigidBodies[i].setLinearVelocity(velocity);
+}
+
+void RigidBodySystemSimulator::drawRigidBox(Mat4 transformation)
+{
+	Vec3 emissiveColor, specularColor, diffuseColor;
+	float specularPower;
+	emissiveColor = Vec3();
+	specularColor = 0.4 * Vec3(1, 1, 1);
+	specularPower = 2000;
+	diffuseColor = 0.5 * Vec3(1, 1, 1);
+	DUC->setUpLighting(emissiveColor, specularColor, specularPower, diffuseColor);
+	//BodyA.Obj2WorldMatrix = BodyA.scaleMat * BodyA.rotMat * BodyA.translatMat;
+	//DUC->drawRigidBody( BodyA.Obj2WorldMatrix );
+	DUC->drawRigidBody(transformation);
 }
