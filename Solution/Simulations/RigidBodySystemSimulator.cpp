@@ -84,9 +84,12 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 		AngularMomentum = rigidBodies[0].getMomentum();
 		AngularVelocity = rigidBodies[0].getAngularVelocity();
 		inertiaTensorCurrent = rigidBodies[0].getinertiaTensorCurrent();
-		std::cout << "position:" << position << endl << "Velocity:" << LinearVelocity << endl <<
-			"Torque:" << torque << endl << "AngularMomentum" << AngularMomentum << endl <<
-			"InertiaTensor:" << endl << inertiaTensorCurrent << "AngularVelocity:" << AngularVelocity << std::endl;
+		Vec3 worldPoint = Vec3(-0.3f, -0.5f, -0.25f);
+		Vec3 worldSpaceVelocity = LinearVelocity + cross(AngularVelocity, worldPoint - position);
+		std::cout << "Position:" << position << endl << "Velocity:" << LinearVelocity << endl <<
+			"Torque:" << torque << endl << "AngularMomentum:" << AngularMomentum << endl <<
+			"InertiaTensor:" << endl << inertiaTensorCurrent << "AngularVelocity:" << AngularVelocity <<
+			endl << "WorldSpaceVelocity:" << worldSpaceVelocity << std::endl;
 	}
 		break;
 	case 1: {
@@ -99,11 +102,20 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 		break;
 	case 2: 
 	{
-		addRigidBody(Vec3(0.0f, 0.0f, 0.0f), Vec3(0.9f, 0.2f, 0.3f), 2.0f);
+		addRigidBody(Vec3(0.0f, 0.0f, 0.0f), Vec3(3.0f, 2.0f, 3.0f), 2.0f);
 		setOrientationOf(0, Quat(Vec3(0.0f, 0.0f, 0.0f), (float)(M_PI)* 0.5f));
 		applyForceOnBody(0, Vec3(0.2f, 5.0f, 1.0f), Vec3(1.0f, 1.0f, 1.0f));
-		addRigidBody(Vec3(3.0f, 3.0f, 3.0f), Vec3(0.5656854f, 0.5656854f, 0.20f), 2.0f);
-		setOrientationOf(1, Quat(Vec3(0.0f, 0.0f, 0.5f), (float)(M_PI)* 0.5f));
+		addRigidBody(Vec3(3.0f, 3.0f, 3.0f), Vec3(5.0f, 2.0, 2.0f), 2.0f);
+		setOrientationOf(1, Quat(Vec3(0.0f, 0.5f, 0.5f), (float)(M_PI)* 0.5f));
+		applyForceOnBody(1, Vec3(), -1.0f * Vec3(1.0f, 1.0f, 1.0f));
+		/*
+		addRigidBody(Vec3(), Vec3(3.0f, 2.0f, 3.0f), 2.0f);
+		setOrientationOf(0, Quat(Vec3(0.0f, 0.0f, 0.0f), (float)(M_PI)* 0.5f));
+		applyForceOnBody(0, Vec3(), Vec3(1.0f, 0.0f, 0.0f));
+		addRigidBody(Vec3(5.0f, 0.5f, 0.0f), Vec3(3.0f, 2.0f, 3.0f), 2.0f);
+		setOrientationOf(1, Quat(Vec3(0.0f, 0.5f, 0.5f), (float)(M_PI)* 0.5f));
+		applyForceOnBody(1, Vec3(), -1.0f * Vec3(1.0f, 0.0f, 0.0f));
+		*/
 	}
 		break;
 	case 3: break;
@@ -240,9 +252,20 @@ void RigidBodySystemSimulator::foo(int index, float timeStep)
 	if (useCollision) {
 		Mat4 transformA, transformB;
 		transformA = calculateTransform(index);
+		// Check if RigidBody is too far away
+		float distance = 50.0f;
+		if (rigidBodies[index].getPosition().x > distance || rigidBodies[index].getPosition().y > distance || rigidBodies[index].getPosition().z > distance ||
+			rigidBodies[index].getPosition().x < -distance || rigidBodies[index].getPosition().y < -distance || rigidBodies[index].getPosition().z < -distance) {
+			return;
+		}
 		// Iterate over list to detect collision with other rigidbodies
 		for (int i = 0; i < rigidBodies.size(); i++) {
 			if (i != index) {
+				// Check if RigidBody is too far away
+				if (rigidBodies[i].getPosition().x > distance || rigidBodies[i].getPosition().y > distance || rigidBodies[i].getPosition().z > distance ||
+					rigidBodies[i].getPosition().x < -distance || rigidBodies[i].getPosition().y < -distance || rigidBodies[i].getPosition().z < -distance) {
+					return;
+				}
 				transformB = calculateTransform(i);
 				CollisionInfo simpletest = checkCollisionSAT(transformA, transformB);
 				if (simpletest.isValid) {
@@ -252,33 +275,33 @@ void RigidBodySystemSimulator::foo(int index, float timeStep)
 					x_a = simpletest.collisionPointWorld - rigidBodies[index].getPosition();
 					x_b = simpletest.collisionPointWorld - rigidBodies[i].getPosition();
 					relativeVelocity = rigidBodies[index].getLinearVelocity() - rigidBodies[i].getLinearVelocity();
+					int m_a, m_b;
+					m_a = rigidBodies[index].getMass();
+					m_b = rigidBodies[i].getMass();
 					double c = 0; // Constant = 0
 					J = -(1 + c) * dot(relativeVelocity, n);
 					if (rigidBodies[index].isStationary() || rigidBodies[i].isStationary()) {
 						// One of the rigid bodies is stationary
 						Vec3 tmp;					
 						if (rigidBodies[index].isStationary()) {
-							Vec3 tmp = rigidBodies[i].getinertiaTensorCurrent().inverse().transformVector(cross(x_b, n));						
-							J /= ((1 / rigidBodies[i].getMass()) + dot(cross(tmp, x_b), n));
+							tmp = rigidBodies[i].getinertiaTensorCurrent().inverse().transformVector(cross(x_b, n));						
+							J /= ((1 / m_b) + dot(cross(tmp, x_b), n));
 						}
 						else {
-							Vec3 tmp = rigidBodies[index].getinertiaTensorCurrent().inverse().transformVector(cross(x_a, n));
-							J /= ((1 / rigidBodies[index].getMass()) + dot(cross(tmp, x_a), n));
+							tmp = rigidBodies[index].getinertiaTensorCurrent().inverse().transformVector(cross(x_a, n));
+							J /= ((1 / m_a) + dot(cross(tmp, x_a), n));
 						}
 					}
 					else {
-						int m_a, m_b;
-						m_a = rigidBodies[index].getMass();
-						m_b = rigidBodies[i].getMass();
 						Vec3 tmp_a, tmp_b, tmp;
 						tmp_a = rigidBodies[index].getinertiaTensorCurrent().inverse().transformVector(cross(x_a, n));
 						tmp_b = rigidBodies[i].getinertiaTensorCurrent().inverse().transformVector(cross(x_b, n));
 						tmp = cross(tmp_a, x_a) + cross(tmp_b, x_b);
 						J /= ((1 / m_a) + (1 / m_b) + dot(tmp, n));
 					}
-					// Debug
-					std::printf("collision detected at normal: %f, %f, %f\n", simpletest.normalWorld.x, simpletest.normalWorld.y, simpletest.normalWorld.z);
-					std::printf("collision point : %f, %f, %f\n", (simpletest.collisionPointWorld).x, (simpletest.collisionPointWorld).y, simpletest.collisionPointWorld.z);
+					//// Debug
+					//std::printf("collision detected at normal: %f, %f, %f\n", simpletest.normalWorld.x, simpletest.normalWorld.y, simpletest.normalWorld.z);
+					//std::printf("collision point : %f, %f, %f\n", (simpletest.collisionPointWorld).x, (simpletest.collisionPointWorld).y, simpletest.collisionPointWorld.z);
 					// Reaction
 					reactAfterCollision(index, J, n, 1, x_a);
 					reactAfterCollision(i, J, n, -1, x_b);
