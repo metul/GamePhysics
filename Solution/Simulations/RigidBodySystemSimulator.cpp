@@ -110,9 +110,7 @@ void RigidBodySystemSimulator::externalForcesCalculations(float timeElapsed)
 		float inputScale = 0.001f;
 		inputWorld = inputWorld * inputScale;
 		m_externalForce = inputWorld;
-	}
-	else {
-		m_externalForce = Vec3(0, 0, 0);
+		rigidBodies[0].applyForce(Vec3(m_mouse.x, m_mouse.y, 0), m_externalForce*10);
 	}
 }
 
