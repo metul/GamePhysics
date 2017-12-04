@@ -381,6 +381,8 @@ namespace collisionTools{
 					   XMVectorGetByIndex(size_B, (whichEdges % 3)),
 					   bestSingleAxis);
 		}break;
+		default:
+			normal = XMVECTOR(); break;
 		}
 
 

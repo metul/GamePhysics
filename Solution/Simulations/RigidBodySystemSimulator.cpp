@@ -102,7 +102,7 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 		break;
 	case 2: 
 	{
-		addRigidBody(Vec3(0.0f, 0.0f, 0.0f), Vec3(3.0f, 2.0f, 3.0f), 2.0f);
+		addRigidBody(Vec3(0.0f, 0.0f, 0.0f), Vec3(3.0f, 2.0f, 3.0f), 10.0f);
 		setOrientationOf(0, Quat(Vec3(0.0f, 0.0f, 0.0f), (float)(M_PI)* 0.5f));
 		applyForceOnBody(0, Vec3(0.2f, 5.0f, 1.0f), Vec3(1.0f, 1.0f, 1.0f));
 		addRigidBody(Vec3(3.0f, 3.0f, 3.0f), Vec3(5.0f, 2.0, 2.0f), 2.0f);
