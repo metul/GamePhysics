@@ -64,13 +64,13 @@ void SphereSystemSimulator::simulateTimestep(float timeStep)
 {
 }
 
-void MassSpringSystemSimulator::onClick(int x, int y)
+void SphereSystemSimulator::onClick(int x, int y)
 {
 	m_trackmouse.x = x;
 	m_trackmouse.y = y;
 }
 
-void MassSpringSystemSimulator::onMouse(int x, int y)
+void SphereSystemSimulator::onMouse(int x, int y)
 {
 	m_oldtrackmouse.x = x;
 	m_oldtrackmouse.y = y;
