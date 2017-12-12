@@ -21,6 +21,16 @@ const char * SphereSystemSimulator::getTestCasesStr()
 
 void SphereSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 {
+	this->DUC = DUC;
+	// TODO: Different UI for demo scenes?
+	switch (m_iTestCase)
+	{
+	case 0:break;
+	case 1:break;
+	case 2:break;
+	case 3:break;
+	default:break;
+	}
 }
 
 void SphereSystemSimulator::reset()
@@ -32,11 +42,45 @@ void SphereSystemSimulator::reset()
 
 void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext)
 {
+	switch (m_iTestCase) {
+	case 0: {
+		SphereSystem s = m_pSphereSystem[0];
+		drawSphere(s.getPosition(0));
+		drawSphere(s.getPosition(1));
+	}
+		break;
+	case 1: break;
+	case 2: break;
+	default:
+		cout << "Empty Test!\n";
+		break;
+
+	}
 }
 
 void SphereSystemSimulator::notifyCaseChanged(int testCase)
 {
 	m_iTestCase = testCase;
+	switch (m_iTestCase) {
+	case 0: {
+		SphereSystem sphereSystem = SphereSystem();
+		sphereSystem.setDamping(0.01f);
+		sphereSystem.setGravity(Vec3(0, 9.81, 0));
+		sphereSystem.setMass(0.1f);
+		sphereSystem.setRadius(0.05);
+		sphereSystem.setScalingFactor(10.0f);
+		sphereSystem.AddPoint(Vec3(0, 0.3, 0), Vec3(0, 0, 0));
+		sphereSystem.AddPoint(Vec3(0.3, 0.3, 0), Vec3());
+		m_pSphereSystem.clear();
+		m_pSphereSystem.push_back(sphereSystem);
+	}
+			break;
+	case 1:break;
+	case 2:break;
+	default:
+		cout << "Empty Test!\n";
+		break;
+	}
 }
 
 void SphereSystemSimulator::externalForcesCalculations(float timeElapsed)
@@ -62,6 +106,18 @@ void SphereSystemSimulator::externalForcesCalculations(float timeElapsed)
 
 void SphereSystemSimulator::simulateTimestep(float timeStep)
 {
+	switch (m_iTestCase) {
+	case 0: {
+		SphereSystem s = m_pSphereSystem[0];
+		s.naive(timeStep);
+	}
+		break;
+	case 1: break;
+	case 2: break;
+	default:
+		cout << "Empty Test!\n";
+		break;
+	}
 }
 
 void SphereSystemSimulator::onClick(int x, int y)
@@ -76,4 +132,17 @@ void SphereSystemSimulator::onMouse(int x, int y)
 	m_oldtrackmouse.y = y;
 	m_trackmouse.x = x;
 	m_trackmouse.y = y;
+}
+
+void SphereSystemSimulator::drawSphere(Vec3 position)
+{
+	Vec3 emissiveColor, specularColor, diffuseColor;
+	float specularPower;
+	emissiveColor = Vec3();
+	specularColor = 0.4 * Vec3(1, 1, 1);
+	specularPower = 100;
+	diffuseColor = 0.6 * Vec3(1, 1, 1);
+	DUC->setUpLighting(emissiveColor, specularColor, specularPower, diffuseColor);
+	Vec3 scale = 0.1 * Vec3(1, 1, 1);
+	DUC->drawSphere(position, scale);
 }

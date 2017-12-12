@@ -20,6 +20,7 @@ public:
 	void simulateTimestep(float timeStep);
 	void onClick(int x, int y);
 	void onMouse(int x, int y);
+	void drawSphere(Vec3 position);
 	
 protected:
 	// Attributes
@@ -38,7 +39,7 @@ protected:
 	
 	int   m_iAccelerator; // switch between NAIVEACC and GRIDACC, (optionally, KDTREEACC, 2)
 	
-	SphereSystem * m_pSphereSystem; // add your own sphere system member!
+	vector<SphereSystem> m_pSphereSystem; // add your own sphere system member!
 	// for Demo 3 only:
 	// you will need multiple SphereSystem objects to do comparisons in Demo 3
 	// m_iAccelerator should be ignored.
