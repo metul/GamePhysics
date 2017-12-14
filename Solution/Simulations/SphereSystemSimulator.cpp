@@ -12,6 +12,7 @@ std::function<float(float)> SphereSystemSimulator::m_Kernels[5] = {
 
 SphereSystemSimulator::SphereSystemSimulator()
 {
+	m_iTestCase = 0;
 }
 
 const char * SphereSystemSimulator::getTestCasesStr()
@@ -65,7 +66,7 @@ void SphereSystemSimulator::notifyCaseChanged(int testCase)
 	case 0: {
 		SphereSystem sphereSystem = SphereSystem();
 		sphereSystem.setDamping(0.01f);
-		sphereSystem.setGravity(Vec3(0, 9.81, 0));
+		sphereSystem.setGravity(Vec3(0, -9.81, 0));
 		sphereSystem.setMass(0.1f);
 		sphereSystem.setRadius(0.05);
 		sphereSystem.setScalingFactor(10.0f);
@@ -108,8 +109,7 @@ void SphereSystemSimulator::simulateTimestep(float timeStep)
 {
 	switch (m_iTestCase) {
 	case 0: {
-		SphereSystem s = m_pSphereSystem[0];
-		s.naive(timeStep);
+		m_pSphereSystem[0].naive(timeStep);
 	}
 		break;
 	case 1: break;

@@ -56,6 +56,11 @@ Vec3 SphereSystem::updateVelocity(Point point, Vec3 acceleration, float timestep
 	return point.vel + acceleration * timestep;
 }
 
+std::vector<Vec3> SphereSystem::computeForce() {
+	std::vector<Vec3> result;
+	return result;
+}
+
 void SphereSystem::MidPoint(int i, int j, float timestep)
 {
 	Point p1 = s_points[i];
@@ -70,12 +75,18 @@ void SphereSystem::MidPoint(int i, int j, float timestep)
 	p1temp.pos= tmpPos1;
 	p2temp.pos = tmpPos2;
 	// Calculate force and acceleration at t
-	Vec3 currentForce = updateForces(p1, p2);
-	Vec3 currentAcceleration = updateAcceleration(currentForce);
+	//Vec3 currentForce = updateForces(p1, p2);
+	std::vector<Vec3> forces = computeForce();
+	//Vec3 currentAcceleration = updateAcceleration(currentForce);
+	Vec3 acceleration1, acceleration2;
+	acceleration1 = updateAcceleration(forces[0]);
+	acceleration2 = updateAcceleration(forces[1]);
 	// Calculate velocity at t + h / 2
 	Vec3 tmpVel1, tmpVel2;
-	tmpVel1 = updateVelocity(p1, currentAcceleration, timestep / 2);
-	tmpVel2 = updateVelocity(p2, -currentAcceleration, timestep / 2);
+	//tmpVel1 = updateVelocity(p1, currentAcceleration, timestep / 2);
+	//tmpVel2 = updateVelocity(p2, -currentAcceleration, timestep / 2);
+	tmpVel1 = updateVelocity(p1, acceleration1, timestep / 2);
+	tmpVel2 = updateVelocity(p2, acceleration2, timestep / 2);
 	// Apply gravity
 	tmpVel1 += s_fGravity * timestep / 2;
 	tmpVel2 += s_fGravity * timestep / 2;
@@ -86,12 +97,17 @@ void SphereSystem::MidPoint(int i, int j, float timestep)
 	newPos1 = p1.pos + timestep * p1temp.vel;
 	newPos2 = p2.pos + timestep * p2temp.vel;
 	// Calculate midpoint force and acceleration for the velocity at t + h
-	currentForce = updateForces(p1temp, p2temp);
-	currentAcceleration = updateAcceleration(currentForce);
+	//currentForce = updateForces(p1temp, p2temp);
+	forces = computeForce();
+	//currentAcceleration = updateAcceleration(currentForce);
+	acceleration1 = updateAcceleration(forces[0]);
+	acceleration2 = updateAcceleration(forces[1]);
 	// Calculate velocity at t + h
 	Vec3 newVel1, newVel2;
-	newVel1 = updateVelocity(p1, currentAcceleration, timestep);
-	newVel2 = updateVelocity(p2, -currentAcceleration, timestep);
+	//newVel1 = updateVelocity(p1, currentAcceleration, timestep);
+	//newVel2 = updateVelocity(p2, -currentAcceleration, timestep);
+	newVel1 = updateVelocity(p1, acceleration1, timestep);
+	newVel2 = updateVelocity(p2, acceleration2, timestep);
 	// Apply gravity
 	newVel1 += s_fGravity * timestep;
 	newVel2 += s_fGravity * timestep;
