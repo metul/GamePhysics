@@ -1,12 +1,12 @@
 ﻿#include "SphereSystemSimulator.h"
 
-std::function<float(float)> SphereSystemSimulator::m_Kernels[5] = {
-	[](float x) {return 1.0f; },              // Constant, m_iKernel = 0
-	[](float x) {return 1.0f - x; },          // Linear, m_iKernel = 1, as given in the exercise Sheet, x = d/2r
-	[](float x) {return (1.0f - x)*(1.0f - x); }, // Quadratic, m_iKernel = 2
-	[](float x) {return 1.0f / (x)-1.0f; },     // Weak Electric Charge, m_iKernel = 3
-	[](float x) {return 1.0f / (x*x) - 1.0f; },   // Electric Charge, m_iKernel = 4
-};
+//std::function<float(float)> SphereSystemSimulator::m_Kernels[5] = {
+//	[](float x) {return 1.0f; },              // Constant, m_iKernel = 0
+//	[](float x) {return 1.0f - x; },          // Linear, m_iKernel = 1, as given in the exercise Sheet, x = d/2r
+//	[](float x) {return (1.0f - x)*(1.0f - x); }, // Quadratic, m_iKernel = 2
+//	[](float x) {return 1.0f / (x)-1.0f; },     // Weak Electric Charge, m_iKernel = 3
+//	[](float x) {return 1.0f / (x*x) - 1.0f; },   // Electric Charge, m_iKernel = 4
+//};
 
 // SphereSystemSimulator member functions
 
@@ -19,6 +19,7 @@ SphereSystemSimulator::SphereSystemSimulator()
 	m_fMass = 0.1f;
 	m_fRadius = 0.1f;
 	m_fGravity = 0.1f;
+	m_iKernel = 1;
 	isVisuell = true;
 }
 
@@ -40,7 +41,7 @@ void SphereSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 		TwAddVarRW(DUC->g_pTweakBar, "ForceScaling", TW_TYPE_FLOAT, &m_fForceScaling, "");
 		TwAddVarRW(DUC->g_pTweakBar, "Damping", TW_TYPE_FLOAT, &m_fDamping, "");
 		TwAddVarRW(DUC->g_pTweakBar, "# of Spheres",TW_TYPE_INT32, &m_iNumSpheres, "");
-		//TwAddVarRW(DUC->g_pTweakBar, "Kernel", TW_TYPE_FLOAT, &m_iKernel, "");
+		TwAddVarRW(DUC->g_pTweakBar, "Kernel", TW_TYPE_INT32, &m_iKernel, "");
 		TwAddVarRW(DUC->g_pTweakBar, "Gravity", TW_TYPE_FLOAT, &m_fGravity, "");
 	}
 		break;
@@ -155,7 +156,7 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 		switch (m_iTestCase) {
 		case 0: {
 			m_pSphereSystem[0].setGravity(m_externalForce);
-			m_pSphereSystem[0].naive(timeStep);
+			m_pSphereSystem[0].naive(timeStep, m_iKernel);
 			m_pSphereSystem[0].BoundingBoxCheck();
 		}
 				break;

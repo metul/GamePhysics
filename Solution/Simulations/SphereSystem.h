@@ -1,6 +1,7 @@
 #include <vector>
 #include "util\vectorbase.h"
 #include <iostream>
+#include <functional>
 using namespace GamePhysics;
 using std::cout;
 
@@ -11,14 +12,14 @@ public:
 		Vec3 vel;
 	};
 	void AddPoint(Vec3 p, Vec3 v);
-	float compute_repulsionForce(float d); //compute repulsion force with distance d, radius r, scalingFactor(lambda) s
+	float compute_repulsionForce(float d, int kernel); //compute repulsion force with distance d, radius r, scalingFactor(lambda) s
 	float compute_distance(Point p1,Point p2); //distance between to points
 	float vec_to_length(Vec3 v); //Vec3 length
-	void naive(float timestep); //collisiondetection 
-	std::vector<Vec3> updateForces(Point p1, Point p2); //caluclate forces depending on gravity and repulsion force
+	void naive(float timestep, int kernel); //collisiondetection 
+	std::vector<Vec3> updateForces(Point p1, Point p2, int kernel); //caluclate forces depending on gravity and repulsion force
 	Vec3 updateAcceleration(Vec3 force); //calculate new acceleration depending on mass and forces
 	Vec3 updateVelocity(Point point, Vec3 acceleration, float timestep); //caluclate new velocity depending on acceleration and old velocity
-	void MidPoint(int i, int j, float timestep);
+	void MidPoint(int i, int j, float timestep, int kernel);
 	void BoundingBoxCheck(float times = 1.0f);
 
 	void setScalingFactor(float s) { scalingFactor = s; }
@@ -33,7 +34,6 @@ public:
 	Vec3 getGravity() { return s_fGravity; }
 	Vec3 getPosition(int i) { return s_points[i].pos; }
 	int getSizePointVector() { return s_points.size(); }
-	
 
 
 private:
@@ -43,4 +43,7 @@ private:
 	float s_mass;
 	float s_radius;
 	Vec3 s_fGravity;
+
+	static std::function<float(float)> m_Kernels[5];
+
 };

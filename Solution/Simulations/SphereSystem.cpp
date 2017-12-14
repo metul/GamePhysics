@@ -1,5 +1,13 @@
 #include "SphereSystem.h"
 
+std::function<float(float)> SphereSystem::m_Kernels[5] = {
+	[](float x) {return 1.0f; },              // Constant, m_iKernel = 0
+	[](float x) {return 1.0f - x; },          // Linear, m_iKernel = 1, as given in the exercise Sheet, x = d/2r
+	[](float x) {return (1.0f - x)*(1.0f - x); }, // Quadratic, m_iKernel = 2
+	[](float x) {return 1.0f / (x)-1.0f; },     // Weak Electric Charge, m_iKernel = 3
+	[](float x) {return 1.0f / (x*x) - 1.0f; },   // Electric Charge, m_iKernel = 4
+};
+
 void SphereSystem::AddPoint(Vec3 p, Vec3 v)
 {
 	Point tmp;
@@ -8,10 +16,10 @@ void SphereSystem::AddPoint(Vec3 p, Vec3 v)
 	s_points.push_back(tmp);
 }
 
-float SphereSystem::compute_repulsionForce(float d)
+float SphereSystem::compute_repulsionForce(float d, int kernel)
 {
 	if (d < 2 * s_radius) {
-		return scalingFactor * (1 - (d / (2 * s_radius)));
+		return scalingFactor * (m_Kernels[kernel](d / (2 * s_radius))); //(d / (2 * s_radius))
 	}
 	else {
 		return 0.0f;
@@ -30,11 +38,11 @@ float SphereSystem::vec_to_length(Vec3 v)
 	return sqrt(pow(v.x, 2) + pow(v.y, 2) + pow(v.z, 2));
 }
 
-void SphereSystem::naive(float timestep)
+void SphereSystem::naive(float timestep, int kernel)
 {
 	for (int i = 0; i < s_points.size(); i++) {
 		for (int j = i + 1; j < s_points.size(); j++) {
-			MidPoint(i, j, timestep);
+			MidPoint(i, j, timestep, kernel);
 			/*cout << "p1: " << s_points[i].pos << " p2: " << s_points[j].pos << "\n";
 			cout << "v1: " << s_points[i].vel << " v2: " << s_points[j].vel << "\n";*/
 		}
@@ -42,10 +50,10 @@ void SphereSystem::naive(float timestep)
 	
 }
 
-std::vector<Vec3> SphereSystem::updateForces(Point p1, Point p2)
+std::vector<Vec3> SphereSystem::updateForces(Point p1, Point p2, int kernel)
 {
 	std::vector<Vec3> forces;
-	Vec3 result = compute_repulsionForce(compute_distance(p1, p2)) * ((p1.pos - p2.pos) / compute_distance(p1, p2));
+	Vec3 result = compute_repulsionForce(compute_distance(p1, p2),kernel) * ((p1.pos - p2.pos) / compute_distance(p1, p2));
 	//cout << "repulsion: " << result << "\n";
 	forces.push_back(result + p1.vel * -s_damping);
 	forces.push_back(-result + p2.vel * -s_damping);
@@ -67,7 +75,7 @@ Vec3 SphereSystem::updateVelocity(Point point, Vec3 acceleration, float timestep
 }
 
 
-void SphereSystem::MidPoint(int i, int j, float timestep)
+void SphereSystem::MidPoint(int i, int j, float timestep, int kernel)
 {
 	Point p1 = s_points[i];
 	Point p2 = s_points[j];
@@ -82,7 +90,7 @@ void SphereSystem::MidPoint(int i, int j, float timestep)
 	p2temp.pos = tmpPos2;
 	// Calculate force and acceleration at t
 	//Vec3 currentForce = updateForces(p1, p2);
-	std::vector<Vec3> forces = updateForces(p1, p2);
+	std::vector<Vec3> forces = updateForces(p1, p2,kernel);
 	//Vec3 currentAcceleration = updateAcceleration(currentForce);
 	Vec3 acceleration1, acceleration2;
 	acceleration1 = updateAcceleration(forces[0]);
@@ -106,7 +114,7 @@ void SphereSystem::MidPoint(int i, int j, float timestep)
 	newPos2 = p2.pos + timestep * p2temp.vel;
 	// Calculate midpoint force and acceleration for the velocity at t + h
 	//currentForce = updateForces(p1temp, p2temp);
-	forces = updateForces(p1temp, p2temp);
+	forces = updateForces(p1temp, p2temp,kernel);
 	//currentAcceleration = updateAcceleration(currentForce);
 	acceleration1 = updateAcceleration(forces[0]);
 	acceleration2 = updateAcceleration(forces[1]);
