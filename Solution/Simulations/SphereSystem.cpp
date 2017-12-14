@@ -11,7 +11,7 @@ void SphereSystem::AddPoint(Vec3 p, Vec3 v)
 float SphereSystem::compute_repulsionForce(float d)
 {
 	if (d < 2 * s_radius) {
-		return scalingFactor *(1 - (d / (2 * s_radius)));
+		return scalingFactor * (1 - (d / (2 * s_radius)));
 	}
 	else {
 		return 0.0f;
@@ -151,3 +151,5 @@ void SphereSystem::BoundingBoxCheck(float times)
 			s_points[i].vel = vel;
 	}
 }
+
+

@@ -19,6 +19,7 @@ SphereSystemSimulator::SphereSystemSimulator()
 	m_fMass = 0.1f;
 	m_fRadius = 0.1f;
 	m_fGravity = 0.1f;
+	isVisuell = true;
 }
 
 const char * SphereSystemSimulator::getTestCasesStr()
@@ -33,6 +34,7 @@ void SphereSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 	switch (m_iTestCase)
 	{
 	case 0: {
+		TwAddVarRW(DUC->g_pTweakBar, "Visuell", TW_TYPE_BOOL8, &isVisuell, "");
 		TwAddVarRW(DUC->g_pTweakBar, "Mass", TW_TYPE_FLOAT, &m_fMass, "");
 		TwAddVarRW(DUC->g_pTweakBar, "Radius", TW_TYPE_FLOAT, &m_fRadius, "");
 		TwAddVarRW(DUC->g_pTweakBar, "ForceScaling", TW_TYPE_FLOAT, &m_fForceScaling, "");
@@ -60,8 +62,10 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 {
 	switch (m_iTestCase) {
 	case 0: {
-		for (int i = 0; i < m_pSphereSystem[0].getSizePointVector(); i++) {
-			drawSphere(m_pSphereSystem[0].getPosition(i), m_pSphereSystem[0].getRadius());
+		if (isVisuell) {
+			for (int i = 0; i < m_pSphereSystem[0].getSizePointVector(); i++) {
+				drawSphere(m_pSphereSystem[0].getPosition(i), m_pSphereSystem[0].getRadius());
+			}
 		}
 	}
 		break;
@@ -80,16 +84,6 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 		m_pSphereSystem.clear();
 		switch (m_iTestCase) {
 		case 0: {
-			/*SphereSystem sphereSystem = SphereSystem();
-			sphereSystem.setDamping(0.01f);
-			sphereSystem.setGravity(Vec3(0, -9.81, 0));
-			sphereSystem.setMass(0.1f);
-			sphereSystem.setRadius(0.05);
-			sphereSystem.setScalingFactor(100.0f);
-			sphereSystem.AddPoint(Vec3(0, 0.3, 0), Vec3());
-			sphereSystem.AddPoint(Vec3(0, 0.15, 0), Vec3());
-			m_pSphereSystem.clear();
-			m_pSphereSystem.push_back(sphereSystem);*/
 			SphereSystem sphereSystem = SphereSystem();
 			sphereSystem.setDamping(m_fDamping);
 			sphereSystem.setGravity(Vec3(0, -m_fGravity, 0));
@@ -152,7 +146,7 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 		}
 		//pullforce -=  pullforce * 5.0f * timeElapsed;
 		// Gravity
-		Vec3 gravity = Vec3(0, -9.81f, 0);
+		Vec3 gravity = Vec3(0, -m_fGravity, 0);
 		m_externalForce = gravity + pullforce;
 	}
 
@@ -160,6 +154,7 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 	{
 		switch (m_iTestCase) {
 		case 0: {
+			m_pSphereSystem[0].setGravity(m_externalForce);
 			m_pSphereSystem[0].naive(timeStep);
 			m_pSphereSystem[0].BoundingBoxCheck();
 		}

@@ -33,6 +33,7 @@ public:
 	Vec3 getGravity() { return s_fGravity; }
 	Vec3 getPosition(int i) { return s_points[i].pos; }
 	int getSizePointVector() { return s_points.size(); }
+	
 
 
 private:

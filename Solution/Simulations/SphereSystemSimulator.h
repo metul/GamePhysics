@@ -35,6 +35,8 @@ protected:
 	int   m_iNumSpheres;
 	float m_fGravity;
 	
+	bool isVisuell;
+
 	int   m_iKernel; // index of the m_Kernels[5], more detials in SphereSystemSimulator.cpp
 	static std::function<float(float)> m_Kernels[5];
 	
