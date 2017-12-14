@@ -13,6 +13,12 @@ std::function<float(float)> SphereSystemSimulator::m_Kernels[5] = {
 SphereSystemSimulator::SphereSystemSimulator()
 {
 	m_iTestCase = 0;
+	m_iNumSpheres = 45;
+	m_fDamping = 0.7f;
+	m_fForceScaling = 10.f;
+	m_fMass = 0.1f;
+	m_fRadius = 0.1f;
+	m_fGravity = 0.1f;
 }
 
 const char * SphereSystemSimulator::getTestCasesStr()
@@ -20,11 +26,6 @@ const char * SphereSystemSimulator::getTestCasesStr()
 	return "Demo1,Demo2,Demo3";
 }
 
-/*float m_fMass;
-	float m_fRadius;
-	float m_fForceScaling;
-	float m_fDamping;
-	int   m_iNumSpheres;*/
 void SphereSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 {
 	this->DUC = DUC;
@@ -36,8 +37,8 @@ void SphereSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 		TwAddVarRW(DUC->g_pTweakBar, "Radius", TW_TYPE_FLOAT, &m_fRadius, "");
 		TwAddVarRW(DUC->g_pTweakBar, "ForceScaling", TW_TYPE_FLOAT, &m_fForceScaling, "");
 		TwAddVarRW(DUC->g_pTweakBar, "Damping", TW_TYPE_FLOAT, &m_fDamping, "");
-		TwAddVarRW(DUC->g_pTweakBar, "# of Spheres", TW_TYPE_FLOAT, &m_iNumSpheres, "");
-		TwAddVarRW(DUC->g_pTweakBar, "Kernel", TW_TYPE_FLOAT, &m_iKernel, "");
+		TwAddVarRW(DUC->g_pTweakBar, "# of Spheres",TW_TYPE_INT32, &m_iNumSpheres, "");
+		//TwAddVarRW(DUC->g_pTweakBar, "Kernel", TW_TYPE_FLOAT, &m_iKernel, "");
 		TwAddVarRW(DUC->g_pTweakBar, "Gravity", TW_TYPE_FLOAT, &m_fGravity, "");
 	}
 		break;
@@ -89,18 +90,13 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 			sphereSystem.AddPoint(Vec3(0, 0.15, 0), Vec3());
 			m_pSphereSystem.clear();
 			m_pSphereSystem.push_back(sphereSystem);*/
-			m_iNumSpheres = 20; // MARK
-			m_fDamping = 0.01f;
-			m_fForceScaling = 100.f;
-			m_fMass = 0.1f;
-			m_fRadius = 0.05f;
 			SphereSystem sphereSystem = SphereSystem();
 			sphereSystem.setDamping(m_fDamping);
-			sphereSystem.setGravity(Vec3(0, -9.81, 0));
+			sphereSystem.setGravity(Vec3(0, -m_fGravity, 0));
 			sphereSystem.setMass(m_fMass);
 			sphereSystem.setRadius(m_fRadius);
 			sphereSystem.setScalingFactor(m_fForceScaling);
-			float distance = m_fRadius + 0.06f;
+			float distance = m_fRadius + (6 * m_fRadius / 5);
 			float boxSize = 1;
 			int numSpheresPerAxis = boxSize / distance;
 			int remainingSpheres = m_iNumSpheres;
@@ -108,8 +104,8 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 			// Box boundary
 			float offset = 0.5f - m_fRadius;
 			for (int y = 0; y < numSpheresPerAxis; y++) {
-				float offsetX = (y % 2 == 0) ? 0.f : -0.02f;
-				float offsetZ = (y % 2 == 0) ? 0.f : -0.02f;
+				float offsetX = (y % 2 == 0) ? 0.f : -(2 * m_fRadius / 5);
+				float offsetZ = (y % 2 == 0) ? 0.f : -(2 * m_fRadius / 5);
 				if (remainingSpheres < 1)
 					break;
 				for (int z = 0; z < numSpheresPerAxis; z++) {
