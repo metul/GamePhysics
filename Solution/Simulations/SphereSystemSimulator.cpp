@@ -76,10 +76,11 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 	void SphereSystemSimulator::notifyCaseChanged(int testCase)
 	{
 		m_iTestCase = testCase;
+		m_pSphereSystem.clear();
 		switch (m_iTestCase) {
 		case 0: {
-			SphereSystem sphereSystem = SphereSystem();
-			sphereSystem.setDamping(0.7f);
+			/*SphereSystem sphereSystem = SphereSystem();
+			sphereSystem.setDamping(0.01f);
 			sphereSystem.setGravity(Vec3(0, -9.81, 0));
 			sphereSystem.setMass(0.1f);
 			sphereSystem.setRadius(0.05);
@@ -87,6 +88,46 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 			sphereSystem.AddPoint(Vec3(0, 0.3, 0), Vec3());
 			sphereSystem.AddPoint(Vec3(0, 0.15, 0), Vec3());
 			m_pSphereSystem.clear();
+			m_pSphereSystem.push_back(sphereSystem);*/
+			m_iNumSpheres = 20; // MARK
+			m_fDamping = 0.01f;
+			m_fForceScaling = 100.f;
+			m_fMass = 0.1f;
+			m_fRadius = 0.05f;
+			SphereSystem sphereSystem = SphereSystem();
+			sphereSystem.setDamping(m_fDamping);
+			sphereSystem.setGravity(Vec3(0, -9.81, 0));
+			sphereSystem.setMass(m_fMass);
+			sphereSystem.setRadius(m_fRadius);
+			sphereSystem.setScalingFactor(m_fForceScaling);
+			float distance = m_fRadius + 0.06f;
+			float boxSize = 1;
+			int numSpheresPerAxis = boxSize / distance;
+			int remainingSpheres = m_iNumSpheres;
+			float posX, posY, posZ;
+			// Box boundary
+			float offset = 0.5f - m_fRadius;
+			for (int y = 0; y < numSpheresPerAxis; y++) {
+				float offsetX = (y % 2 == 0) ? 0.f : -0.02f;
+				float offsetZ = (y % 2 == 0) ? 0.f : -0.02f;
+				if (remainingSpheres < 1)
+					break;
+				for (int z = 0; z < numSpheresPerAxis; z++) {
+					if (remainingSpheres < 1)
+						break;
+					for (int x = 0; x < numSpheresPerAxis; x++) {
+						// Initialize position
+						posX = offset - x * distance + offsetX;
+						posY = offset - y * distance;
+						posZ = offset - z * distance + offsetZ;
+						sphereSystem.AddPoint(Vec3(posX, posY, posZ), Vec3());
+						// Check remaining spheres
+						remainingSpheres--;
+						if (remainingSpheres < 1)
+							break;
+					}
+				}
+			}
 			m_pSphereSystem.push_back(sphereSystem);
 		}
 				break;

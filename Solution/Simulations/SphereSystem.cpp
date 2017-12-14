@@ -35,8 +35,8 @@ void SphereSystem::naive(float timestep)
 	for (int i = 0; i < s_points.size(); i++) {
 		for (int j = i + 1; j < s_points.size(); j++) {
 			MidPoint(i, j, timestep);
-			cout << "p1: " << s_points[i].pos << " p2: " << s_points[j].pos << "\n";
-			cout << "v1: " << s_points[i].vel << " v2: " << s_points[j].vel << "\n";
+			/*cout << "p1: " << s_points[i].pos << " p2: " << s_points[j].pos << "\n";
+			cout << "v1: " << s_points[i].vel << " v2: " << s_points[j].vel << "\n";*/
 		}
 	}
 	
