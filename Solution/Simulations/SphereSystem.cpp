@@ -22,7 +22,6 @@ float SphereSystem::compute_distance(Point p1, Point p2)
 {
 	Vec3 tmp;
 	tmp = p2.pos - p1.pos;
-	cout << "distance: " << vec_to_length(tmp) << "\n";
 	return vec_to_length(tmp);
 }
 
@@ -45,10 +44,9 @@ void SphereSystem::naive(float timestep)
 std::vector<Vec3> SphereSystem::updateForces(Point p1, Point p2)
 {
 	std::vector<Vec3> forces;
-	Vec3 result = compute_repulsionForce(compute_distance(p1, p2)) * (p1.pos - p2.pos);
+	Vec3 result = compute_repulsionForce(compute_distance(p1, p2));
 	forces.push_back(result + p1.vel * -s_damping);
 	forces.push_back(-result + p2.vel * -s_damping);
-	cout << "res: " << result << " p1f: " << forces[0] << " p2f: " << forces[1] << "\n";
 	return forces;
 }
 

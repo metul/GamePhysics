@@ -69,7 +69,7 @@ void SphereSystemSimulator::notifyCaseChanged(int testCase)
 		sphereSystem.setGravity(Vec3(0, -9.81, 0));
 		sphereSystem.setMass(0.1f);
 		sphereSystem.setRadius(0.05);
-		sphereSystem.setScalingFactor(100.0f);
+		sphereSystem.setScalingFactor(10.0f);
 		sphereSystem.AddPoint(Vec3(0, 0.3, 0), Vec3(0, 0, 0));
 		sphereSystem.AddPoint(Vec3(0, 0.15, 0), Vec3());
 		m_pSphereSystem.clear();
