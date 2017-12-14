@@ -19,7 +19,8 @@ public:
 	std::vector<Vec3> updateForces(Point p1, Point p2, int kernel); //caluclate forces depending on gravity and repulsion force
 	Vec3 updateAcceleration(Vec3 force); //calculate new acceleration depending on mass and forces
 	Vec3 updateVelocity(Point point, Vec3 acceleration, float timestep); //caluclate new velocity depending on acceleration and old velocity
-	void MidPoint(int i, int j, float timestep, int kernel, bool gridCollision);
+	void MidPoint(int i, int j, float timestep, int kernel);
+	void MidPointLinear(int i, float timestep);
 	void BoundingBoxCheck(float times = 1.0f);
 
 	void setScalingFactor(float s) { scalingFactor = s; }
@@ -34,6 +35,8 @@ public:
 	Vec3 getGravity() { return s_fGravity; }
 	Vec3 getPosition(int i) { return s_points[i].pos; }
 	int getSizePointVector() { return s_points.size(); }
+
+	void setInGrid(int i, int *gSlots, int * gCounter, std::vector<int> gHelper);
 
 
 private:

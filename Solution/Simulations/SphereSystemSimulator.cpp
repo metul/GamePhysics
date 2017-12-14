@@ -120,6 +120,7 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 				}
 			}
 			m_pSphereSystem.push_back(sphereSystem);
+			initializeGrid();
 		}
 				break;
 		case 1:break;
@@ -158,6 +159,9 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 			m_pSphereSystem[0].setGravity(m_externalForce);
 			m_pSphereSystem[0].naive(timeStep, m_iKernel);
 			m_pSphereSystem[0].BoundingBoxCheck();
+			for (int i = 0; i < m_pSphereSystem[0].getSizePointVector(); i++) {
+				m_pSphereSystem[0].setInGrid(i, gridSlots, gridCounter, gridHelper);
+			}
 		}
 				break;
 		case 1: break;
@@ -193,4 +197,23 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 		DUC->setUpLighting(emissiveColor, specularColor, specularPower, diffuseColor);
 		Vec3 scale = s * Vec3(1, 1, 1);
 		DUC->drawSphere(position, scale);
+	}
+
+	void SphereSystemSimulator::initializeGrid()
+	{
+		float gridSize = 2 * m_fRadius;
+		int numberGridsPerAxis = 1 / gridSize;
+		int numberGrids = pow(numberGridsPerAxis, 3);
+		int ballSlots = 10; // MARK
+		numberOfGridCells = ballSlots * numberGrids;
+		gridSlots = new int[numberOfGridCells];
+		gridCounter = new int[numberGrids];
+		// Fill all slots with -1 // MARK
+		for (int i = 0; i < numberOfGridCells; i++) {
+			gridSlots[i] = -1;
+		}
+		// Fill grid ball numbers with 0 // MARK
+		for (int i = 0; i < numberGrids; i++) {
+			gridCounter[i] = 0;
+		}
 	}

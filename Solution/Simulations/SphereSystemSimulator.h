@@ -21,6 +21,7 @@ public:
 	void onClick(int x, int y);
 	void onMouse(int x, int y);
 	void drawSphere(Vec3 position, Vec3 s);
+	void initializeGrid();
 	
 protected:
 	// Attributes
@@ -47,7 +48,10 @@ protected:
 	// you will need multiple SphereSystem objects to do comparisons in Demo 3
 	// m_iAccelerator should be ignored.
 	// SphereSystem * m_pSphereSystemGrid; 
-
+	int * gridSlots;
+	int * gridCounter;
+	int numberOfGridCells;
+	vector<int> gridHelper;
 };
 
 #endif

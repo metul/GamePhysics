@@ -42,18 +42,18 @@ void SphereSystem::naive(float timestep, int kernel)
 {
 	for (int i = 0; i < s_points.size(); i++) {
 		for (int j = i + 1; j < s_points.size(); j++) {
-			MidPoint(i, j, timestep, kernel,true);
+			MidPoint(i, j, timestep, kernel);
 			/*cout << "p1: " << s_points[i].pos << " p2: " << s_points[j].pos << "\n";
 			cout << "v1: " << s_points[i].vel << " v2: " << s_points[j].vel << "\n";*/
 		}
 	}
-	
+
 }
 
 std::vector<Vec3> SphereSystem::updateForces(Point p1, Point p2, int kernel)
 {
 	std::vector<Vec3> forces;
-	Vec3 result = compute_repulsionForce(compute_distance(p1, p2),kernel) * ((p1.pos - p2.pos) / compute_distance(p1, p2));
+	Vec3 result = compute_repulsionForce(compute_distance(p1, p2), kernel) * ((p1.pos - p2.pos) / compute_distance(p1, p2));
 	//cout << "repulsion: " << result << "\n";
 	forces.push_back(result + p1.vel * -s_damping);
 	forces.push_back(-result + p2.vel * -s_damping);
@@ -75,7 +75,9 @@ Vec3 SphereSystem::updateVelocity(Point point, Vec3 acceleration, float timestep
 }
 
 
-void SphereSystem::MidPoint(int i, int j, float timestep, int kernel, bool gridCollision)
+
+
+void SphereSystem::MidPoint(int i, int j, float timestep, int kernel)
 {
 	Point p1 = s_points[i];
 	Point p2 = s_points[j];
@@ -86,21 +88,19 @@ void SphereSystem::MidPoint(int i, int j, float timestep, int kernel, bool gridC
 	Vec3 tmpPos1, tmpPos2;
 	tmpPos1 = p1.pos + (timestep / 2) * p1.vel;
 	tmpPos2 = p2.pos + (timestep / 2) * p2.vel;
-	p1temp.pos= tmpPos1;
+	p1temp.pos = tmpPos1;
 	p2temp.pos = tmpPos2;
 	// Calculate force and acceleration at t
 	//Vec3 currentForce = updateForces(p1, p2);
 	std::vector<Vec3> forces;
 	Vec3 acceleration1, acceleration2;
 	Vec3 tmpVel1, tmpVel2;
-	if (gridCollision) {
-		forces = updateForces(p1, p2, kernel);
-		acceleration1 = updateAcceleration(forces[0]);
-		acceleration2 = updateAcceleration(forces[1]);
-		//cout << "at1: " << acceleration1 << " at2: " << acceleration2 << "\n";
-		tmpVel1 = updateVelocity(p1, acceleration1, timestep / 2);
-		tmpVel2 = updateVelocity(p2, acceleration2, timestep / 2);
-	}
+	forces = updateForces(p1, p2, kernel);
+	acceleration1 = updateAcceleration(forces[0]);
+	acceleration2 = updateAcceleration(forces[1]);
+	//cout << "at1: " << acceleration1 << " at2: " << acceleration2 << "\n";
+	tmpVel1 = updateVelocity(p1, acceleration1, timestep / 2);
+	tmpVel2 = updateVelocity(p2, acceleration2, timestep / 2);
 	// Apply gravity
 	tmpVel1 += s_fGravity * timestep / 2;
 	tmpVel2 += s_fGravity * timestep / 2;
@@ -113,15 +113,13 @@ void SphereSystem::MidPoint(int i, int j, float timestep, int kernel, bool gridC
 	newPos2 = p2.pos + timestep * p2temp.vel;
 	// Calculate midpoint force and acceleration for the velocity at t + h
 	Vec3 newVel1, newVel2;
-	if (gridCollision) {
-		forces = updateForces(p1temp, p2temp, kernel);
-		acceleration1 = updateAcceleration(forces[0]);
-		acceleration2 = updateAcceleration(forces[1]);
-		//cout << "a1: " << acceleration1 << " a2: " << acceleration2 << "\n";
-		// Calculate velocity at t + h
-		newVel1 = updateVelocity(p1, acceleration1, timestep);
-		newVel2 = updateVelocity(p2, acceleration2, timestep);		
-	}	
+	forces = updateForces(p1temp, p2temp, kernel);
+	acceleration1 = updateAcceleration(forces[0]);
+	acceleration2 = updateAcceleration(forces[1]);
+	//cout << "a1: " << acceleration1 << " a2: " << acceleration2 << "\n";
+	// Calculate velocity at t + h
+	newVel1 = updateVelocity(p1, acceleration1, timestep);
+	newVel2 = updateVelocity(p2, acceleration2, timestep);
 	// Apply gravity
 	//cout << "vm1: " << newVel1 << " vm2: " << newVel2 << "\n";
 	newVel1 += s_fGravity * timestep;
@@ -135,26 +133,74 @@ void SphereSystem::MidPoint(int i, int j, float timestep, int kernel, bool gridC
 	s_points[j] = p2;
 }
 
+void SphereSystem::MidPointLinear(int i, float timestep)
+{
+	Point p1 = s_points[i];
+	Point p1temp;
+	p1temp = p1;
+	Vec3 tmpPos1;
+	tmpPos1 = p1.pos + (timestep / 2) * p1.vel;
+	p1temp.pos = tmpPos1;
+	Vec3 tmpVel1;
+	// Apply gravity
+	tmpVel1 += s_fGravity * timestep / 2;
+	p1temp.vel = tmpVel1;
+	// Calculate new positions at t + h
+	Vec3 newPos1;
+	newPos1 = p1.pos + timestep * p1temp.vel;
+	// Calculate midpoint force and acceleration for the velocity at t + h
+	Vec3 newVel1;
+	// Apply gravity
+	newVel1 += s_fGravity * timestep;
+	//Save Values
+	p1.pos = newPos1;
+	p1.vel = newVel1;
+	s_points[i] = p1;
+}
+
 void SphereSystem::BoundingBoxCheck(float times)
 {
 	for (size_t i = 0; i < s_points.size(); i++)
 	{
-			Vec3 pos = s_points[i].pos;
-			Vec3 vel = s_points[i].vel;
+		Vec3 pos = s_points[i].pos;
+		Vec3 vel = s_points[i].vel;
 
-			for (int f = 0; f < 6; f++)
+		for (int f = 0; f < 6; f++)
+		{
+			float sign = (f % 2 == 0) ? -1.0f : 1.0f;
+			if (sign * pos.value[f / 2] < -0.5f * times)
 			{
-				float sign = (f % 2 == 0) ? -1.0f : 1.0f;
-				if (sign * pos.value[f / 2] < -0.5f * times)
-				{
-					pos.value[f / 2] = sign * -0.5f * times;
-					vel.value[f / 2] = 0;
-				}
+				pos.value[f / 2] = sign * -0.5f * times;
+				vel.value[f / 2] = 0;
 			}
+		}
 
-			s_points[i].pos = pos;
-			s_points[i].vel = vel;
+		s_points[i].pos = pos;
+		s_points[i].vel = vel;
 	}
+}
+
+// MARK (pointer and reference)
+void SphereSystem::setInGrid(int i, int *gSlots, int *gCounter, std::vector<int> gHelper)
+{
+	bool helpBool = false;
+	float gridSize = 2 * s_radius;
+	int numberGridsPerAxis = 1 / gridSize;
+	int ballSlots = 10;
+	Point p = s_points[i];
+	int gridX =  (p.pos.x + 0.5f) / gridSize;
+	int gridY = (p.pos.y + 0.5f) / gridSize;
+	int gridZ = (p.pos.z + 0.5f) / gridSize;
+	int index = (pow(numberGridsPerAxis, 2) * gridY + gridZ * numberGridsPerAxis + gridX) * ballSlots;
+	while (gSlots[index] == -1) {
+		index++;
+		helpBool = true;
+	}
+	int gridIndex = index / ballSlots;
+	gSlots[index] = i;
+	gCounter[gridIndex]++;
+	if (!helpBool)
+		gHelper.push_back(gridIndex);
 }
 
 
