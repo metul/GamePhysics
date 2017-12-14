@@ -20,7 +20,7 @@ public:
 	void simulateTimestep(float timeStep);
 	void onClick(int x, int y);
 	void onMouse(int x, int y);
-	void drawSphere(Vec3 position);
+	void drawSphere(Vec3 position, Vec3 s);
 	
 protected:
 	// Attributes

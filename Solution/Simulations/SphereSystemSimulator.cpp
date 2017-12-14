@@ -46,8 +46,8 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 	switch (m_iTestCase) {
 	case 0: {
 		SphereSystem s = m_pSphereSystem[0];
-		drawSphere(s.getPosition(0));
-		drawSphere(s.getPosition(1));
+		drawSphere(s.getPosition(0),s.getRadius());
+		drawSphere(s.getPosition(1),s.getRadius());
 	}
 		break;
 	case 1: break;
@@ -69,9 +69,9 @@ void SphereSystemSimulator::notifyCaseChanged(int testCase)
 		sphereSystem.setGravity(Vec3(0, -9.81, 0));
 		sphereSystem.setMass(0.1f);
 		sphereSystem.setRadius(0.05);
-		sphereSystem.setScalingFactor(10.0f);
+		sphereSystem.setScalingFactor(100.0f);
 		sphereSystem.AddPoint(Vec3(0, 0.3, 0), Vec3(0, 0, 0));
-		sphereSystem.AddPoint(Vec3(0.3, 0.3, 0), Vec3());
+		sphereSystem.AddPoint(Vec3(0, 0.15, 0), Vec3());
 		m_pSphereSystem.clear();
 		m_pSphereSystem.push_back(sphereSystem);
 	}
@@ -110,6 +110,7 @@ void SphereSystemSimulator::simulateTimestep(float timeStep)
 	switch (m_iTestCase) {
 	case 0: {
 		m_pSphereSystem[0].naive(timeStep);
+		m_pSphereSystem[0].BoundingBoxCheck();
 	}
 		break;
 	case 1: break;
@@ -134,7 +135,7 @@ void SphereSystemSimulator::onMouse(int x, int y)
 	m_trackmouse.y = y;
 }
 
-void SphereSystemSimulator::drawSphere(Vec3 position)
+void SphereSystemSimulator::drawSphere(Vec3 position, Vec3 s)
 {
 	Vec3 emissiveColor, specularColor, diffuseColor;
 	float specularPower;
@@ -143,6 +144,6 @@ void SphereSystemSimulator::drawSphere(Vec3 position)
 	specularPower = 100;
 	diffuseColor = 0.6 * Vec3(1, 1, 1);
 	DUC->setUpLighting(emissiveColor, specularColor, specularPower, diffuseColor);
-	Vec3 scale = 0.1 * Vec3(1, 1, 1);
+	Vec3 scale = s * Vec3(1, 1, 1);
 	DUC->drawSphere(position, scale);
 }

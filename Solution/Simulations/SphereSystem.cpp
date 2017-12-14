@@ -22,6 +22,7 @@ float SphereSystem::compute_distance(Point p1, Point p2)
 {
 	Vec3 tmp;
 	tmp = p2.pos - p1.pos;
+	cout << "distance: " << vec_to_length(tmp) << "\n";
 	return vec_to_length(tmp);
 }
 
@@ -35,9 +36,10 @@ void SphereSystem::naive(float timestep)
 	for (int i = 0; i < s_points.size(); i++) {
 		for (int j = i + 1; j < s_points.size(); j++) {
 			MidPoint(i, j, timestep);
+			cout << "p1: " << s_points[i].pos << " p2: " << s_points[j].pos << "\n";
 		}
 	}
-	//BoundingBoxCheck(timestep);
+	
 }
 
 std::vector<Vec3> SphereSystem::updateForces(Point p1, Point p2)
@@ -45,7 +47,8 @@ std::vector<Vec3> SphereSystem::updateForces(Point p1, Point p2)
 	std::vector<Vec3> forces;
 	Vec3 result = compute_repulsionForce(compute_distance(p1, p2)) * (p1.pos - p2.pos);
 	forces.push_back(result + p1.vel * -s_damping);
-	forces.push_back(result + p2.vel * -s_damping);
+	forces.push_back(-result + p2.vel * -s_damping);
+	cout << "res: " << result << " p1f: " << forces[0] << " p2f: " << forces[1] << "\n";
 	return forces;
 }
 
