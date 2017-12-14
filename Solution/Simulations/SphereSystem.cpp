@@ -37,13 +37,16 @@ void SphereSystem::naive(float timestep)
 			MidPoint(i, j, timestep);
 		}
 	}
+	//BoundingBoxCheck(timestep);
 }
 
-Vec3 SphereSystem::updateForces(Point p1, Point p2)
+std::vector<Vec3> SphereSystem::updateForces(Point p1, Point p2)
 {
-	Vec3 result = compute_repulsionForce(compute_distance(p1,p2)) * (p1.pos - p2.pos);
-	result += p1.vel * -s_damping;
-	return result;
+	std::vector<Vec3> forces;
+	Vec3 result = compute_repulsionForce(compute_distance(p1, p2)) * (p1.pos - p2.pos);
+	forces.push_back(result + p1.vel * -s_damping);
+	forces.push_back(result + p2.vel * -s_damping);
+	return forces;
 }
 
 Vec3 SphereSystem::updateAcceleration(Vec3 force)
@@ -56,10 +59,6 @@ Vec3 SphereSystem::updateVelocity(Point point, Vec3 acceleration, float timestep
 	return point.vel + acceleration * timestep;
 }
 
-std::vector<Vec3> SphereSystem::computeForce() {
-	std::vector<Vec3> result;
-	return result;
-}
 
 void SphereSystem::MidPoint(int i, int j, float timestep)
 {
@@ -76,7 +75,7 @@ void SphereSystem::MidPoint(int i, int j, float timestep)
 	p2temp.pos = tmpPos2;
 	// Calculate force and acceleration at t
 	//Vec3 currentForce = updateForces(p1, p2);
-	std::vector<Vec3> forces = computeForce();
+	std::vector<Vec3> forces = updateForces(p1, p2);
 	//Vec3 currentAcceleration = updateAcceleration(currentForce);
 	Vec3 acceleration1, acceleration2;
 	acceleration1 = updateAcceleration(forces[0]);
@@ -98,7 +97,7 @@ void SphereSystem::MidPoint(int i, int j, float timestep)
 	newPos2 = p2.pos + timestep * p2temp.vel;
 	// Calculate midpoint force and acceleration for the velocity at t + h
 	//currentForce = updateForces(p1temp, p2temp);
-	forces = computeForce();
+	forces = updateForces(p1temp, p2temp);
 	//currentAcceleration = updateAcceleration(currentForce);
 	acceleration1 = updateAcceleration(forces[0]);
 	acceleration2 = updateAcceleration(forces[1]);

@@ -15,7 +15,7 @@ public:
 	float compute_distance(Point p1,Point p2); //distance between to points
 	float vec_to_length(Vec3 v); //Vec3 length
 	void naive(float timestep); //collisiondetection 
-	Vec3 updateForces(Point p1, Point p2); //caluclate forces depending on gravity and repulsion force
+	std::vector<Vec3> updateForces(Point p1, Point p2); //caluclate forces depending on gravity and repulsion force
 	Vec3 updateAcceleration(Vec3 force); //calculate new acceleration depending on mass and forces
 	Vec3 updateVelocity(Point point, Vec3 acceleration, float timestep); //caluclate new velocity depending on acceleration and old velocity
 	void MidPoint(int i, int j, float timestep);
