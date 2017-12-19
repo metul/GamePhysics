@@ -143,6 +143,8 @@ void SphereSystem::MidPointLinear(int i, float timestep)
 	p1temp.pos = tmpPos1;
 	Vec3 tmpVel1;
 	// Apply gravity
+	Vec3 acc = updateAcceleration(Vec3 ());
+	tmpVel1 = updateVelocity(p1, acc, timestep / 2);
 	tmpVel1 += s_fGravity * timestep / 2;
 	p1temp.vel = tmpVel1;
 	// Calculate new positions at t + h
@@ -150,8 +152,9 @@ void SphereSystem::MidPointLinear(int i, float timestep)
 	newPos1 = p1.pos + timestep * p1temp.vel;
 	// Calculate midpoint force and acceleration for the velocity at t + h
 	Vec3 newVel1;
+	newVel1 = updateVelocity(p1, acc, timestep);
 	// Apply gravity
-	newVel1 += s_fGravity * timestep;
+	newVel1 += s_fGravity * timestep / 2;
 	//Save Values
 	p1.pos = newPos1;
 	p1.vel = newVel1;
