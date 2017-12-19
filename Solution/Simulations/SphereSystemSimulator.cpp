@@ -69,6 +69,7 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 			for (int i = 0; i < m_pSphereSystem[0].getSizePointVector(); i++) {
 				drawSphere(m_pSphereSystem[0].getPosition(i), m_pSphereSystem[0].getRadius());
 			}
+			drawGrid();
 		}
 	}
 		break;
@@ -199,6 +200,45 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 		DUC->setUpLighting(emissiveColor, specularColor, specularPower, diffuseColor);
 		Vec3 scale = s * Vec3(1, 1, 1);
 		DUC->drawSphere(position, scale);
+	}
+
+	void SphereSystemSimulator::drawLine(Vec3 position1, Vec3 position2)
+	{
+		DUC->beginLine();
+		Vec3 color1 = Vec3(1, 1, 1);
+		DUC->drawLine(position1, color1, position2, color1);
+		DUC->endLine();
+	}
+
+	void SphereSystemSimulator::drawGrid()
+	{
+		float gridSize = 2 * m_fRadius;
+		int numberGridsPerAxis = 1 / gridSize;
+		Vec3 pos1, pos2;
+		// x
+		for (int y = 0; y <= numberGridsPerAxis; y++) {
+			for (int z = 0; z <= numberGridsPerAxis; z++) {
+				pos1 = Vec3(-0.5f, -0.5f + y * gridSize, -0.5f + z * gridSize);
+				pos2 = Vec3(0.5f, -0.5f + y * gridSize, -0.5f + z * gridSize);
+				drawLine(pos1, pos2);
+			}
+		}
+		// z
+		for (int y = 0; y <= numberGridsPerAxis; y++) {
+			for (int x = 0; x <= numberGridsPerAxis; x++) {
+				pos1 = Vec3(-0.5f + x * gridSize, -0.5f + y * gridSize, -0.5f);
+				pos2 = Vec3(-0.5f + x * gridSize, -0.5f + y * gridSize, 0.5f);
+				drawLine(pos1, pos2);
+			}
+		}
+		// y
+		for (int z = 0; z <= numberGridsPerAxis; z++) {
+			for (int x = 0; x <= numberGridsPerAxis; x++) {
+				pos1 = Vec3(-0.5f + x * gridSize, -0.5f, -0.5f + z * gridSize);
+				pos2 = Vec3(-0.5f + x * gridSize, 0.5f, -0.5f + z * gridSize);
+				drawLine(pos1, pos2);
+			}
+		}
 	}
 
 	void SphereSystemSimulator::initializeGrid()

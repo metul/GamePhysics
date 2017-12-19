@@ -21,6 +21,8 @@ public:
 	void onClick(int x, int y);
 	void onMouse(int x, int y);
 	void drawSphere(Vec3 position, Vec3 s);
+	void drawLine(Vec3 position1, Vec3 position2);
+	void drawGrid();
 	void initializeGrid();
 	
 protected:
