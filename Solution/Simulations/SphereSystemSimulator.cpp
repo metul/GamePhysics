@@ -206,7 +206,7 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 		m_GridSize = 2 * m_fRadius;
 		m_numGridsPerAxis = 1 / m_GridSize;
 		int numberGrids = pow(m_numGridsPerAxis, 3);
-		int ballSlots = 10; // MARK
+		int ballSlots = 10; // Hardcoded ball slots value
 		numberOfGridCells = ballSlots * numberGrids;
 		gridSlots = new int[numberOfGridCells];
 		gridCounter = new int[numberGrids];
