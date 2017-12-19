@@ -35,6 +35,8 @@ protected:
 	float m_fDamping;
 	int   m_iNumSpheres;
 	float m_fGravity;
+	float m_GridSize;
+	float m_numGridsPerAxis;
 	
 	bool isVisuell;
 

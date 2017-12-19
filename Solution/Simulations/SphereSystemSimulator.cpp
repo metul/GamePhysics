@@ -21,6 +21,8 @@ SphereSystemSimulator::SphereSystemSimulator()
 	m_fGravity = 0.1f;
 	m_iKernel = 1;
 	isVisuell = true;
+	m_GridSize = 2 * m_fRadius;
+	m_numGridsPerAxis = 1 / m_GridSize;
 }
 
 const char * SphereSystemSimulator::getTestCasesStr()
@@ -201,9 +203,9 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 
 	void SphereSystemSimulator::initializeGrid()
 	{
-		float gridSize = 2 * m_fRadius;
-		int numberGridsPerAxis = 1 / gridSize;
-		int numberGrids = pow(numberGridsPerAxis, 3);
+		m_GridSize = 2 * m_fRadius;
+		m_numGridsPerAxis = 1 / m_GridSize;
+		int numberGrids = pow(m_numGridsPerAxis, 3);
 		int ballSlots = 10; // MARK
 		numberOfGridCells = ballSlots * numberGrids;
 		gridSlots = new int[numberOfGridCells];
