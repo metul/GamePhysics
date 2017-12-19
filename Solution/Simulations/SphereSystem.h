@@ -37,7 +37,7 @@ public:
 	int getSizePointVector() { return s_points.size(); }
 
 	void setInGrid(int i, int *gSlots, int * gCounter, std::vector<int> gHelper);
-	bool isBallAlreadyInGrid(int i, int *gSlots, int gridIndex, int ballSlots);
+	bool isBallAlreadyInGrid(int ballID, int *gSlots, int index, int ballSlots);
 
 
 private:

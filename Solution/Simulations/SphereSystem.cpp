@@ -193,7 +193,7 @@ void SphereSystem::setInGrid(int i, int *gSlots, int *gCounter, std::vector<int>
 	int gridZ = (p.pos.z + 0.5f) / gridSize;
 	int index = (pow(numberGridsPerAxis, 2) * gridY + gridZ * numberGridsPerAxis + gridX) * ballSlots;
 	int gridIndex = index / ballSlots;
-	if (isBallAlreadyInGrid(i, gSlots, gridIndex, ballSlots))
+	if (isBallAlreadyInGrid(i, gSlots, index, ballSlots))
 		return;
 	while (gSlots[index] == -1) {
 		index++;
@@ -205,10 +205,10 @@ void SphereSystem::setInGrid(int i, int *gSlots, int *gCounter, std::vector<int>
 		gHelper.push_back(gridIndex);
 }
 
-bool SphereSystem::isBallAlreadyInGrid(int i, int * gSlots, int gridIndex, int ballSlots)
+bool SphereSystem::isBallAlreadyInGrid(int ballID, int * gSlots, int index, int ballSlots)
 {
-	for (int i = gridIndex; i < gridIndex + ballSlots; i++) {
-		if (gSlots[i] == i) {
+	for (int i = index; i < index + ballSlots; i++) {
+		if (gSlots[i] == ballID) {
 			return true;
 		}
 	}
