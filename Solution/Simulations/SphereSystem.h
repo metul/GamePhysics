@@ -38,9 +38,9 @@ public:
 	Vec3 getPosition(int i) { return s_points[i].pos; }
 	int getSizePointVector() { return s_points.size(); }
 
-	void setInGrid(int i, int *gSlots, int * gCounter, std::vector<int> gHelper);
+	void setInGrid(int i, int *gSlots, int * gCounter, std::vector<int> * gHelper);
 	bool isBallAlreadyInGrid(int ballID, int gridIndex);
-	void resetOldIndex(int ballID, int *gSlots, int *gCounter, std::vector<int> gHelper, int ballSlots);
+	void resetOldIndex(int ballID, int *gSlots, int *gCounter, std::vector<int> * gHelper, int ballSlots);
 
 
 private:

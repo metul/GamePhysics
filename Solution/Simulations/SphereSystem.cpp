@@ -181,7 +181,7 @@ void SphereSystem::BoundingBoxCheck(float times)
 }
 
 // MARK (pointer and reference)
-void SphereSystem::setInGrid(int i, int *gSlots, int *gCounter, std::vector<int> gHelper)
+void SphereSystem::setInGrid(int i, int *gSlots, int *gCounter, std::vector<int> * gHelper)
 {
 	bool helpBool = false;
 	float gridSize = 2 * s_radius;
@@ -204,7 +204,7 @@ void SphereSystem::setInGrid(int i, int *gSlots, int *gCounter, std::vector<int>
 	s_points[i].gridIndex = gridIndex;
 	gCounter[gridIndex]++;
 	if (!helpBool)
-		gHelper.push_back(gridIndex);
+		gHelper -> push_back(gridIndex);
 }
 
 bool SphereSystem::isBallAlreadyInGrid(int ballID, int gridIndex)
@@ -212,7 +212,7 @@ bool SphereSystem::isBallAlreadyInGrid(int ballID, int gridIndex)
 	return s_points[ballID].gridIndex == gridIndex;
 }
 
-void SphereSystem::resetOldIndex(int ballID, int * gSlots, int * gCounter, std::vector<int> gHelper, int ballSlots)
+void SphereSystem::resetOldIndex(int ballID, int * gSlots, int * gCounter, std::vector<int> * gHelper, int ballSlots)
 {
 	int gridIndex = s_points[ballID].gridIndex;
 	if (gridIndex == -1)
@@ -224,10 +224,10 @@ void SphereSystem::resetOldIndex(int ballID, int * gSlots, int * gCounter, std::
 			if (gCounter[gridIndex] == 0) {
 				// Remove grid index from gHelper
 				std::vector<int>::iterator it;
-				it = find(gHelper.begin(), gHelper.end(), gridIndex);
-				if (it != gHelper.end())
+				it = find(gHelper -> begin(), gHelper -> end(), gridIndex);
+				if (it != gHelper -> end())
 				{
-					gHelper.erase(it);
+					gHelper -> erase(it);
 				}
 			}
 		}

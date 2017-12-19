@@ -148,9 +148,8 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 		} break;
 		case 1: {
 			m_pSphereSystem[0].setGravity(m_externalForce);
-			m_pSphereSystem[0].BoundingBoxCheck();
 			for (int i = 0; i < m_pSphereSystem[0].getSizePointVector(); i++) {
-				m_pSphereSystem[0].setInGrid(i, gridSlots, gridCounter, gridHelper);
+				m_pSphereSystem[0].setInGrid(i, gridSlots, gridCounter, &gridHelper);
 			}
 			// TODO (simulate) 
 			for (std::vector<int>::iterator it = gridHelper.begin(); it != gridHelper.end(); ++it) {
@@ -184,6 +183,8 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 					}
 				}
 			} // MARK
+
+			m_pSphereSystem[0].BoundingBoxCheck();
 		} break;
 		case 2: break;
 		default:
