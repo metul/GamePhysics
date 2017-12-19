@@ -223,6 +223,12 @@ void SphereSystem::resetOldIndex(int ballID, int * gSlots, int * gCounter, std::
 			gCounter[gridIndex]--;
 			if (gCounter[gridIndex] == 0) {
 				// Remove grid index from gHelper
+				std::vector<int>::iterator it;
+				it = find(gHelper.begin(), gHelper.end(), gridIndex);
+				if (it != gHelper.end())
+				{
+					gHelper.erase(it);
+				}
 			}
 		}
 	}

@@ -2,6 +2,7 @@
 #include "util\vectorbase.h"
 #include <iostream>
 #include <functional>
+#include <algorithm>
 using namespace GamePhysics;
 using std::cout;
 
