@@ -21,6 +21,7 @@ SphereSystemSimulator::SphereSystemSimulator()
 	m_fGravity = 0.1f;
 	m_iKernel = 1;
 	isVisuell = true;
+	displayGrid = true;
 	m_GridSize = 2 * m_fRadius;
 	m_numGridsPerAxis = 1 / m_GridSize;
 }
@@ -45,9 +46,18 @@ void SphereSystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 		TwAddVarRW(DUC->g_pTweakBar, "# of Spheres",TW_TYPE_INT32, &m_iNumSpheres, "");
 		TwAddVarRW(DUC->g_pTweakBar, "Kernel", TW_TYPE_INT32, &m_iKernel, "");
 		TwAddVarRW(DUC->g_pTweakBar, "Gravity", TW_TYPE_FLOAT, &m_fGravity, "");
-	}
-		break;
-	case 1:break;
+	} break;
+	case 1: {
+		TwAddVarRW(DUC->g_pTweakBar, "Visuell", TW_TYPE_BOOL8, &isVisuell, "");
+		TwAddVarRW(DUC->g_pTweakBar, "DisplayGrid", TW_TYPE_BOOL8, &displayGrid, "");
+		TwAddVarRW(DUC->g_pTweakBar, "Mass", TW_TYPE_FLOAT, &m_fMass, "");
+		TwAddVarRW(DUC->g_pTweakBar, "Radius", TW_TYPE_FLOAT, &m_fRadius, "");
+		TwAddVarRW(DUC->g_pTweakBar, "ForceScaling", TW_TYPE_FLOAT, &m_fForceScaling, "");
+		TwAddVarRW(DUC->g_pTweakBar, "Damping", TW_TYPE_FLOAT, &m_fDamping, "");
+		TwAddVarRW(DUC->g_pTweakBar, "# of Spheres", TW_TYPE_INT32, &m_iNumSpheres, "");
+		TwAddVarRW(DUC->g_pTweakBar, "Kernel", TW_TYPE_INT32, &m_iKernel, "");
+		TwAddVarRW(DUC->g_pTweakBar, "Gravity", TW_TYPE_FLOAT, &m_fGravity, "");
+	} break;
 	case 2:break;
 	case 3:break;
 	default:break;
@@ -69,11 +79,17 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 			for (int i = 0; i < m_pSphereSystem[0].getSizePointVector(); i++) {
 				drawSphere(m_pSphereSystem[0].getPosition(i), m_pSphereSystem[0].getRadius());
 			}
-			drawGrid();
 		}
-	}
-		break;
-	case 1: break;
+	} break;
+	case 1: {
+		if (isVisuell) {
+			for (int i = 0; i < m_pSphereSystem[0].getSizePointVector(); i++) {
+				drawSphere(m_pSphereSystem[0].getPosition(i), m_pSphereSystem[0].getRadius());
+			}
+			if (displayGrid)
+				drawGrid();
+		}
+	} break;
 	case 2: break;
 	default:
 		cout << "Empty Test!\n";
@@ -88,45 +104,12 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 		m_pSphereSystem.clear();
 		switch (m_iTestCase) {
 		case 0: {
-			SphereSystem sphereSystem = SphereSystem();
-			sphereSystem.setDamping(m_fDamping);
-			sphereSystem.setGravity(Vec3(0, -m_fGravity, 0));
-			sphereSystem.setMass(m_fMass);
-			sphereSystem.setRadius(m_fRadius);
-			sphereSystem.setScalingFactor(m_fForceScaling);
-			float distance = m_fRadius + (6 * m_fRadius / 5);
-			float boxSize = 1;
-			int numSpheresPerAxis = boxSize / distance;
-			int remainingSpheres = m_iNumSpheres;
-			float posX, posY, posZ;
-			// Box boundary
-			float offset = 0.5f - m_fRadius;
-			for (int y = 0; y < numSpheresPerAxis; y++) {
-				float offsetX = (y % 2 == 0) ? 0.f : -(2 * m_fRadius / 5);
-				float offsetZ = (y % 2 == 0) ? 0.f : -(2 * m_fRadius / 5);
-				if (remainingSpheres < 1)
-					break;
-				for (int z = 0; z < numSpheresPerAxis; z++) {
-					if (remainingSpheres < 1)
-						break;
-					for (int x = 0; x < numSpheresPerAxis; x++) {
-						// Initialize position
-						posX = offset - x * distance + offsetX;
-						posY = offset - y * distance;
-						posZ = offset - z * distance + offsetZ;
-						sphereSystem.AddPoint(Vec3(posX, posY, posZ), Vec3());
-						// Check remaining spheres
-						remainingSpheres--;
-						if (remainingSpheres < 1)
-							break;
-					}
-				}
-			}
-			m_pSphereSystem.push_back(sphereSystem);
+			setupScene();
+		} break;
+		case 1: {
+			setupScene();
 			initializeGrid();
-		}
-				break;
-		case 1:break;
+		} break;
 		case 2:break;
 		default:
 			cout << "Empty Test!\n";
@@ -162,12 +145,46 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 			m_pSphereSystem[0].setGravity(m_externalForce);
 			m_pSphereSystem[0].naive(timeStep, m_iKernel);
 			m_pSphereSystem[0].BoundingBoxCheck();
+		} break;
+		case 1: {
+			m_pSphereSystem[0].setGravity(m_externalForce);
+			m_pSphereSystem[0].BoundingBoxCheck();
 			for (int i = 0; i < m_pSphereSystem[0].getSizePointVector(); i++) {
 				m_pSphereSystem[0].setInGrid(i, gridSlots, gridCounter, gridHelper);
 			}
-		}
-				break;
-		case 1: break;
+			// TODO (simulate) 
+			for (std::vector<int>::iterator it = gridHelper.begin(); it != gridHelper.end(); ++it) {
+				int numberOfBallsInGrid = gridCounter[*it];
+				if (numberOfBallsInGrid == 1) {
+					// MidPointLinear()
+					int ballID = -1;
+					int ballSlots = 10;
+					for (int i = *it * ballSlots; i < *it * ballSlots + ballSlots; i++) {
+						if (gridSlots[i] != -1) {
+							ballID = gridSlots[i];
+						}
+					}
+					m_pSphereSystem[0].MidPointLinear(ballID, timeStep);
+				}
+				else if (numberOfBallsInGrid > 1) {
+					// MidPoint()
+					int ballID1, ballID2;
+					int ballSlots = 10;
+					ballID1 = ballID2 = -1;
+					for (int i = *it * ballSlots; i < *it * ballSlots + ballSlots; i++) {
+						if (gridSlots[i] != -1) {
+							ballID1 = gridSlots[i];
+							for (int j = i + 1; j < *it * ballSlots + ballSlots; j++) {
+								if (gridSlots[j] != -1) {
+									ballID2 = gridSlots[j];
+									m_pSphereSystem[0].MidPoint(ballID1, ballID2, timeStep, m_iKernel);
+								}
+							}
+						}
+					}
+				}
+			} // MARK
+		} break;
 		case 2: break;
 		default:
 			cout << "Empty Test!\n";
@@ -258,4 +275,43 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 		for (int i = 0; i < numberGrids; i++) {
 			gridCounter[i] = 0;
 		}
+	}
+
+	void SphereSystemSimulator::setupScene()
+	{
+		SphereSystem sphereSystem = SphereSystem();
+		sphereSystem.setDamping(m_fDamping);
+		sphereSystem.setGravity(Vec3(0, -m_fGravity, 0));
+		sphereSystem.setMass(m_fMass);
+		sphereSystem.setRadius(m_fRadius);
+		sphereSystem.setScalingFactor(m_fForceScaling);
+		float distance = m_fRadius + (6 * m_fRadius / 5);
+		float boxSize = 1;
+		int numSpheresPerAxis = boxSize / distance;
+		int remainingSpheres = m_iNumSpheres;
+		float posX, posY, posZ;
+		// Box boundary
+		float offset = 0.5f - m_fRadius;
+		for (int y = 0; y < numSpheresPerAxis; y++) {
+			float offsetX = (y % 2 == 0) ? 0.f : -(2 * m_fRadius / 5);
+			float offsetZ = (y % 2 == 0) ? 0.f : -(2 * m_fRadius / 5);
+			if (remainingSpheres < 1)
+				break;
+			for (int z = 0; z < numSpheresPerAxis; z++) {
+				if (remainingSpheres < 1)
+					break;
+				for (int x = 0; x < numSpheresPerAxis; x++) {
+					// Initialize position
+					posX = offset - x * distance + offsetX;
+					posY = offset - y * distance;
+					posZ = offset - z * distance + offsetZ;
+					sphereSystem.AddPoint(Vec3(posX, posY, posZ), Vec3());
+					// Check remaining spheres
+					remainingSpheres--;
+					if (remainingSpheres < 1)
+						break;
+				}
+			}
+		}
+		m_pSphereSystem.push_back(sphereSystem);
 	}

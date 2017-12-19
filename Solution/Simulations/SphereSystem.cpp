@@ -195,7 +195,7 @@ void SphereSystem::setInGrid(int i, int *gSlots, int *gCounter, std::vector<int>
 	int gridIndex = index / ballSlots;
 	if (isBallAlreadyInGrid(i, gridIndex))
 		return;
-	while (gSlots[index] == -1) {
+	while (gSlots[index] != -1) {
 		index++;
 		helpBool = true;
 	}

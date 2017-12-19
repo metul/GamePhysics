@@ -24,6 +24,7 @@ public:
 	void drawLine(Vec3 position1, Vec3 position2);
 	void drawGrid();
 	void initializeGrid();
+	void setupScene();
 	
 protected:
 	// Attributes
@@ -41,6 +42,7 @@ protected:
 	float m_numGridsPerAxis;
 	
 	bool isVisuell;
+	bool displayGrid;
 
 	int   m_iKernel; // index of the m_Kernels[5], more detials in SphereSystemSimulator.cpp
 	//static std::function<float(float)> m_Kernels[5];
