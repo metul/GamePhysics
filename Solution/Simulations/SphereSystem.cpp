@@ -193,26 +193,39 @@ void SphereSystem::setInGrid(int i, int *gSlots, int *gCounter, std::vector<int>
 	int gridZ = (p.pos.z + 0.5f) / gridSize;
 	int index = (pow(numberGridsPerAxis, 2) * gridY + gridZ * numberGridsPerAxis + gridX) * ballSlots;
 	int gridIndex = index / ballSlots;
-	if (isBallAlreadyInGrid(i, gSlots, index, ballSlots))
+	if (isBallAlreadyInGrid(i, gridIndex))
 		return;
 	while (gSlots[index] == -1) {
 		index++;
 		helpBool = true;
 	}
 	gSlots[index] = i;
+	resetOldIndex(i, gSlots, gCounter, gHelper, ballSlots);
+	s_points[i].gridIndex = gridIndex;
 	gCounter[gridIndex]++;
 	if (!helpBool)
 		gHelper.push_back(gridIndex);
 }
 
-bool SphereSystem::isBallAlreadyInGrid(int ballID, int * gSlots, int index, int ballSlots)
+bool SphereSystem::isBallAlreadyInGrid(int ballID, int gridIndex)
 {
-	for (int i = index; i < index + ballSlots; i++) {
+	return s_points[ballID].gridIndex == gridIndex;
+}
+
+void SphereSystem::resetOldIndex(int ballID, int * gSlots, int * gCounter, std::vector<int> gHelper, int ballSlots)
+{
+	int gridIndex = s_points[ballID].gridIndex;
+	if (gridIndex == -1)
+		return;
+	for (int i = gridIndex * ballSlots; i < gridIndex * ballSlots + ballSlots; i++) {
 		if (gSlots[i] == ballID) {
-			return true;
+			gSlots[i] = -1;
+			gCounter[gridIndex]--;
+			if (gCounter[gridIndex] == 0) {
+				// Remove grid index from gHelper
+			}
 		}
 	}
-	return false;
 }
 
 

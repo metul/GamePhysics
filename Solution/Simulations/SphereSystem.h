@@ -10,6 +10,7 @@ public:
 	struct Point {
 		Vec3 pos;
 		Vec3 vel;
+		int gridIndex = -1;
 	};
 	void AddPoint(Vec3 p, Vec3 v);
 	float compute_repulsionForce(float d, int kernel); //compute repulsion force with distance d, radius r, scalingFactor(lambda) s
@@ -37,7 +38,8 @@ public:
 	int getSizePointVector() { return s_points.size(); }
 
 	void setInGrid(int i, int *gSlots, int * gCounter, std::vector<int> gHelper);
-	bool isBallAlreadyInGrid(int ballID, int *gSlots, int index, int ballSlots);
+	bool isBallAlreadyInGrid(int ballID, int gridIndex);
+	void resetOldIndex(int ballID, int *gSlots, int *gCounter, std::vector<int> gHelper, int ballSlots);
 
 
 private:
