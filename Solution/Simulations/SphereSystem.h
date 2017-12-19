@@ -41,6 +41,8 @@ public:
 	void setInGrid(int i, int *gSlots, int * gCounter, std::vector<int> * gHelper);
 	bool isBallAlreadyInGrid(int ballID, int gridIndex);
 	void resetOldIndex(int ballID, int *gSlots, int *gCounter, std::vector<int> * gHelper, int ballSlots);
+	void initializeGrid();
+	void uniformGrid(float timeStep, int kernel);
 
 
 private:
@@ -51,6 +53,14 @@ private:
 	float s_radius;
 	Vec3 s_fGravity;
 
+	float m_GridSize;
+	float m_numGridsPerAxis;
+
 	static std::function<float(float)> m_Kernels[5];
+
+	int * gridSlots;
+	int * gridCounter;
+	int numberOfGridCells;
+	std::vector<int> gridHelper;
 
 };

@@ -212,6 +212,69 @@ bool SphereSystem::isBallAlreadyInGrid(int ballID, int gridIndex)
 	return s_points[ballID].gridIndex == gridIndex;
 }
 
+
+void SphereSystem::initializeGrid()
+{
+	m_GridSize = 2 * s_radius;
+	m_numGridsPerAxis = 1 / m_GridSize;
+
+	m_GridSize = 2 * s_radius;
+	m_numGridsPerAxis = 1 / m_GridSize;
+	int numberGrids = pow(m_numGridsPerAxis, 3);
+	int ballSlots = 10; // Hardcoded ball slots value
+	numberOfGridCells = ballSlots * numberGrids;
+	gridSlots = new int[numberOfGridCells];
+	gridCounter = new int[numberGrids];
+	// Fill all slots with -1 // MARK
+	for (int i = 0; i < numberOfGridCells; i++) {
+		gridSlots[i] = -1;
+	}
+	// Fill grid ball numbers with 0 // MARK
+	for (int i = 0; i < numberGrids; i++) {
+		gridCounter[i] = 0;
+	}
+}
+
+void SphereSystem::uniformGrid(float timeStep, int kernel)
+{
+	for (int i = 0; i < getSizePointVector(); i++) {
+		setInGrid(i, gridSlots, gridCounter, &gridHelper);
+	}
+	// TODO (simulate) 
+	for (std::vector<int>::iterator it = gridHelper.begin(); it != gridHelper.end(); ++it) {
+		int numberOfBallsInGrid = gridCounter[*it];
+		if (numberOfBallsInGrid == 1) {
+			// MidPointLinear()
+			int ballID = -1;
+			int ballSlots = 10;
+			for (int i = *it * ballSlots; i < *it * ballSlots + ballSlots; i++) {
+				if (gridSlots[i] != -1) {
+					ballID = gridSlots[i];
+				}
+			}
+			MidPointLinear(ballID, timeStep);
+		}
+		else if (numberOfBallsInGrid > 1) {
+			// MidPoint()
+			int ballID1, ballID2;
+			int ballSlots = 10;
+			ballID1 = ballID2 = -1;
+			for (int i = *it * ballSlots; i < *it * ballSlots + ballSlots; i++) {
+				if (gridSlots[i] != -1) {
+					ballID1 = gridSlots[i];
+					for (int j = i + 1; j < *it * ballSlots + ballSlots; j++) {
+						if (gridSlots[j] != -1) {
+							ballID2 = gridSlots[j];
+							MidPoint(ballID1, ballID2, timeStep, kernel);
+						}
+					}
+				}
+			}
+		}
+	} // MARK
+
+}
+
 void SphereSystem::resetOldIndex(int ballID, int * gSlots, int * gCounter, std::vector<int> * gHelper, int ballSlots)
 {
 	int gridIndex = s_points[ballID].gridIndex;

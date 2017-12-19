@@ -22,8 +22,6 @@ SphereSystemSimulator::SphereSystemSimulator()
 	m_iKernel = 1;
 	isVisuell = true;
 	displayGrid = true;
-	m_GridSize = 2 * m_fRadius;
-	m_numGridsPerAxis = 1 / m_GridSize;
 }
 
 const char * SphereSystemSimulator::getTestCasesStr()
@@ -108,7 +106,7 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 		} break;
 		case 1: {
 			setupScene();
-			initializeGrid();
+			m_pSphereSystem[0].initializeGrid();
 		} break;
 		case 2:break;
 		default:
@@ -148,42 +146,7 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 		} break;
 		case 1: {
 			m_pSphereSystem[0].setGravity(m_externalForce);
-			for (int i = 0; i < m_pSphereSystem[0].getSizePointVector(); i++) {
-				m_pSphereSystem[0].setInGrid(i, gridSlots, gridCounter, &gridHelper);
-			}
-			// TODO (simulate) 
-			for (std::vector<int>::iterator it = gridHelper.begin(); it != gridHelper.end(); ++it) {
-				int numberOfBallsInGrid = gridCounter[*it];
-				if (numberOfBallsInGrid == 1) {
-					// MidPointLinear()
-					int ballID = -1;
-					int ballSlots = 10;
-					for (int i = *it * ballSlots; i < *it * ballSlots + ballSlots; i++) {
-						if (gridSlots[i] != -1) {
-							ballID = gridSlots[i];
-						}
-					}
-					m_pSphereSystem[0].MidPointLinear(ballID, timeStep);
-				}
-				else if (numberOfBallsInGrid > 1) {
-					// MidPoint()
-					int ballID1, ballID2;
-					int ballSlots = 10;
-					ballID1 = ballID2 = -1;
-					for (int i = *it * ballSlots; i < *it * ballSlots + ballSlots; i++) {
-						if (gridSlots[i] != -1) {
-							ballID1 = gridSlots[i];
-							for (int j = i + 1; j < *it * ballSlots + ballSlots; j++) {
-								if (gridSlots[j] != -1) {
-									ballID2 = gridSlots[j];
-									m_pSphereSystem[0].MidPoint(ballID1, ballID2, timeStep, m_iKernel);
-								}
-							}
-						}
-					}
-				}
-			} // MARK
-
+			m_pSphereSystem[0].uniformGrid(timeStep, m_iKernel);
 			m_pSphereSystem[0].BoundingBoxCheck();
 		} break;
 		case 2: break;
@@ -258,26 +221,7 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 			}
 		}
 	}
-
-	void SphereSystemSimulator::initializeGrid()
-	{
-		m_GridSize = 2 * m_fRadius;
-		m_numGridsPerAxis = 1 / m_GridSize;
-		int numberGrids = pow(m_numGridsPerAxis, 3);
-		int ballSlots = 10; // Hardcoded ball slots value
-		numberOfGridCells = ballSlots * numberGrids;
-		gridSlots = new int[numberOfGridCells];
-		gridCounter = new int[numberGrids];
-		// Fill all slots with -1 // MARK
-		for (int i = 0; i < numberOfGridCells; i++) {
-			gridSlots[i] = -1;
-		}
-		// Fill grid ball numbers with 0 // MARK
-		for (int i = 0; i < numberGrids; i++) {
-			gridCounter[i] = 0;
-		}
-	}
-
+	
 	void SphereSystemSimulator::setupScene()
 	{
 		SphereSystem sphereSystem = SphereSystem();

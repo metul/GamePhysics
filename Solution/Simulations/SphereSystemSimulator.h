@@ -23,7 +23,6 @@ public:
 	void drawSphere(Vec3 position, Vec3 s);
 	void drawLine(Vec3 position1, Vec3 position2);
 	void drawGrid();
-	void initializeGrid();
 	void setupScene();
 	
 protected:
@@ -38,8 +37,6 @@ protected:
 	float m_fDamping;
 	int   m_iNumSpheres;
 	float m_fGravity;
-	float m_GridSize;
-	float m_numGridsPerAxis;
 	
 	bool isVisuell;
 	bool displayGrid;
@@ -53,11 +50,6 @@ protected:
 	// for Demo 3 only:
 	// you will need multiple SphereSystem objects to do comparisons in Demo 3
 	// m_iAccelerator should be ignored.
-	// SphereSystem * m_pSphereSystemGrid; 
-	int * gridSlots;
-	int * gridCounter;
-	int numberOfGridCells;
-	vector<int> gridHelper;
 };
 
 #endif
