@@ -44,6 +44,7 @@ public:
 	void initializeGrid();
 	void uniformGrid(float timeStep, int kernel);
 
+	void applyGravity(float timeStep);
 
 private:
 	std::vector<Point>  s_points;

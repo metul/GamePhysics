@@ -102,8 +102,10 @@ void SphereSystem::MidPoint(int i, int j, float timestep, int kernel)
 	tmpVel1 = updateVelocity(p1, acceleration1, timestep / 2);
 	tmpVel2 = updateVelocity(p2, acceleration2, timestep / 2);
 	// Apply gravity
-	tmpVel1 += s_fGravity * timestep / 2;
-	tmpVel2 += s_fGravity * timestep / 2;
+
+	/*tmpVel1 += s_fGravity * timestep / 2;
+	tmpVel2 += s_fGravity * timestep / 2;*/
+
 	//cout << "tvm1: " << tmpVel1 << " tvm2: " << tmpVel2 << "\n";
 	p1temp.vel = tmpVel1;
 	p2temp.vel = tmpVel2;
@@ -122,8 +124,10 @@ void SphereSystem::MidPoint(int i, int j, float timestep, int kernel)
 	newVel2 = updateVelocity(p2, acceleration2, timestep);
 	// Apply gravity
 	//cout << "vm1: " << newVel1 << " vm2: " << newVel2 << "\n";
-	newVel1 += s_fGravity * timestep;
-	newVel2 += s_fGravity * timestep;
+
+	/*newVel1 += s_fGravity * timestep;
+	newVel2 += s_fGravity * timestep;*/
+
 	//Save Values
 	p1.pos = newPos1;
 	p2.pos = newPos2;
@@ -146,7 +150,9 @@ void SphereSystem::MidPointLinear(int i, float timestep)
 	Vec3 forces = Vec3() + p1.vel * -s_damping;
 	Vec3 acc = updateAcceleration(forces);
 	tmpVel1 = updateVelocity(p1, acc, timestep / 2);
-	tmpVel1 += s_fGravity * timestep / 2;
+
+	/*tmpVel1 += s_fGravity * timestep / 2;*/
+
 	p1temp.vel = tmpVel1;
 	// Calculate new positions at t + h
 	Vec3 newPos1;
@@ -155,11 +161,32 @@ void SphereSystem::MidPointLinear(int i, float timestep)
 	Vec3 newVel1;
 	newVel1 = updateVelocity(p1, acc, timestep);
 	// Apply gravity
-	newVel1 += s_fGravity * timestep / 2;
+
+	//newVel1 += s_fGravity * timestep / 2;
+
 	//Save Values
 	p1.pos = newPos1;
 	p1.vel = newVel1;
 	s_points[i] = p1;
+}
+
+void SphereSystem::applyGravity(float timeStep)
+{
+	for (int i = 0; i < s_points.size(); i++) {
+		Point p1 = s_points[i];
+		Point p1temp;
+		p1temp = p1;
+		Vec3 tmpVel1;
+		tmpVel1 += s_fGravity * timeStep / 2;
+		p1temp.vel = tmpVel1;
+		Vec3 newPos1, newVel1;
+		newPos1 = p1.pos + timeStep * p1temp.vel;
+		newVel1 = s_fGravity * timeStep;
+		p1.pos = newPos1;
+		p1.vel = newVel1;
+		s_points[i] = p1;
+		//s_points[ballID].vel += s_fGravity * timeStep;
+	}
 }
 
 void SphereSystem::BoundingBoxCheck(float times)
@@ -308,8 +335,7 @@ void SphereSystem::uniformGrid(float timeStep, int kernel)
 				}
 			}
 		}
-	} // MARK
-
+	}
 }
 
 void SphereSystem::resetOldIndex(int ballID, int * gSlots, int * gCounter, std::vector<int> * gHelper, int ballSlots)

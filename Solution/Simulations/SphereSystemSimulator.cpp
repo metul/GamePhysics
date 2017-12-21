@@ -142,11 +142,13 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext
 		case 0: {
 			m_pSphereSystem[0].setGravity(m_externalForce);
 			m_pSphereSystem[0].naive(timeStep, m_iKernel);
+			m_pSphereSystem[0].applyGravity(timeStep);
 			m_pSphereSystem[0].BoundingBoxCheck();
 		} break;
 		case 1: {
 			m_pSphereSystem[0].setGravity(m_externalForce);
 			m_pSphereSystem[0].uniformGrid(timeStep, m_iKernel);
+			m_pSphereSystem[0].applyGravity(timeStep);
 			m_pSphereSystem[0].BoundingBoxCheck();
 		} break;
 		case 2: break;
