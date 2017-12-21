@@ -187,14 +187,14 @@ void SphereSystem::BoundingBoxCheck(float times)
 void SphereSystem::setInGrid(int i, int *gSlots, int *gCounter, std::vector<int> * gHelper)
 {
 	bool helpBool = false;
-	float gridSize = 2 * s_radius;
-	int numberGridsPerAxis = 1 / gridSize;
+	// float gridSize = 2 * s_radius;
+	// int numberGridsPerAxis = 1 / gridSize;
 	int ballSlots = 10; // Hardcoded ball slots value
 	Point p = s_points[i];
-	int gridX =  (p.pos.x + 0.5f) / gridSize;
-	int gridY = (p.pos.y + 0.5f) / gridSize;
-	int gridZ = (p.pos.z + 0.5f) / gridSize;
-	int index = (pow(numberGridsPerAxis, 2) * gridY + gridZ * numberGridsPerAxis + gridX) * ballSlots;
+	int gridX =  (p.pos.x + 0.5f) / m_GridSize;
+	int gridY = (p.pos.y + 0.5f) / m_GridSize;
+	int gridZ = (p.pos.z + 0.5f) / m_GridSize;
+	int index = (pow(m_numGridsPerAxis, 2) * gridY + gridZ * m_numGridsPerAxis + gridX) * ballSlots;
 	int gridIndex = index / ballSlots;
 	if (isBallAlreadyInGrid(i, gridIndex))
 		return;
@@ -220,9 +220,6 @@ void SphereSystem::initializeGrid()
 {
 	m_GridSize = 2 * s_radius;
 	m_numGridsPerAxis = 1 / m_GridSize;
-
-	m_GridSize = 2 * s_radius;
-	m_numGridsPerAxis = 1 / m_GridSize;
 	int numberGrids = pow(m_numGridsPerAxis, 3);
 	int ballSlots = 10; // Hardcoded ball slots value
 	numberOfGridCells = ballSlots * numberGrids;
@@ -245,8 +242,22 @@ void SphereSystem::uniformGrid(float timeStep, int kernel)
 	}
 	// TODO (simulate) 
 	for (std::vector<int>::iterator it = gridHelper.begin(); it != gridHelper.end(); ++it) {
-		int numberOfBallsInGrid = gridCounter[*it];
-		if (numberOfBallsInGrid == 1) {
+		// Add number of balls in 3*3 neigbour grids
+		// (x, y, z) -> it
+		// (x + 1, y, z) -> it + 1
+		// (x, y, z + 1) -> it + numberGridsPerAxis
+		// (x, y + 1, z) -> it + numberGridsPerAxis^2
+		int numberOfBallsInNeighbouringGrids = 0;
+		for (int y = -1; y <= 1; y++) {
+			for (int z = -1; z <= 1; z++) {
+				for (int x = -1; x <= 1; x++) {
+					int tmpIndex = pow(m_numGridsPerAxis, 2.f) * y + m_numGridsPerAxis * z + x + *it;
+					numberOfBallsInNeighbouringGrids += gridCounter[tmpIndex];
+				}
+			}
+		}
+		//int numberOfBallsInGrid = gridCounter[*it];
+		if (numberOfBallsInNeighbouringGrids == 1) {
 			// MidPointLinear()
 			int ballID = -1;
 			int ballSlots = 10;
@@ -257,7 +268,7 @@ void SphereSystem::uniformGrid(float timeStep, int kernel)
 			}
 			MidPointLinear(ballID, timeStep);
 		}
-		else if (numberOfBallsInGrid > 1) {
+		else if (numberOfBallsInNeighbouringGrids > 1) {
 			// MidPoint()
 			int ballID1, ballID2;
 			int ballSlots = 10;
@@ -265,10 +276,27 @@ void SphereSystem::uniformGrid(float timeStep, int kernel)
 			for (int i = *it * ballSlots; i < *it * ballSlots + ballSlots; i++) {
 				if (gridSlots[i] != -1) {
 					ballID1 = gridSlots[i];
+					// Same grid
 					for (int j = i + 1; j < *it * ballSlots + ballSlots; j++) {
 						if (gridSlots[j] != -1) {
 							ballID2 = gridSlots[j];
 							MidPoint(ballID1, ballID2, timeStep, kernel);
+						}
+					}
+					// Neighbour grids
+					for (int y = -1; y <= 1; y++) {
+						for (int z = -1; z <= 1; z++) {
+							for (int x = -1; x <= 1; x++) {
+								if (x == 0 && y == 0 && z == 0)
+									continue;
+								int tmpIndex = pow(m_numGridsPerAxis, 2.f) * y + m_numGridsPerAxis * z + x + *it;
+								for (int i = tmpIndex * ballSlots; i < tmpIndex * ballSlots + ballSlots; i++) {
+									if (gridSlots[i] != -1) {
+										ballID2 = gridSlots[i];
+										MidPoint(ballID1, ballID2, timeStep, kernel);
+									}
+								}
+							}
 						}
 					}
 				}
