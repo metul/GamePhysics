@@ -143,7 +143,8 @@ void SphereSystem::MidPointLinear(int i, float timestep)
 	p1temp.pos = tmpPos1;
 	Vec3 tmpVel1;
 	// Apply gravity
-	Vec3 acc = updateAcceleration(Vec3 ());
+	Vec3 forces = Vec3() + p1.vel * -s_damping;
+	Vec3 acc = updateAcceleration(forces);
 	tmpVel1 = updateVelocity(p1, acc, timestep / 2);
 	tmpVel1 += s_fGravity * timestep / 2;
 	p1temp.vel = tmpVel1;
@@ -252,6 +253,8 @@ void SphereSystem::uniformGrid(float timeStep, int kernel)
 			for (int z = -1; z <= 1; z++) {
 				for (int x = -1; x <= 1; x++) {
 					int tmpIndex = pow(m_numGridsPerAxis, 2.f) * y + m_numGridsPerAxis * z + x + *it;
+					if (tmpIndex < 0 || tmpIndex >= pow(m_numGridsPerAxis, 3))
+						continue;
 					numberOfBallsInNeighbouringGrids += gridCounter[tmpIndex];
 				}
 			}
