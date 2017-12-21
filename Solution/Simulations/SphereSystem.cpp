@@ -290,6 +290,9 @@ void SphereSystem::uniformGrid(float timeStep, int kernel)
 								if (x == 0 && y == 0 && z == 0)
 									continue;
 								int tmpIndex = pow(m_numGridsPerAxis, 2.f) * y + m_numGridsPerAxis * z + x + *it;
+								// Check if tmpIndex is valid
+								if (tmpIndex < 0 || tmpIndex >= pow(m_numGridsPerAxis, 3))
+									continue;
 								for (int i = tmpIndex * ballSlots; i < tmpIndex * ballSlots + ballSlots; i++) {
 									if (gridSlots[i] != -1) {
 										ballID2 = gridSlots[i];
